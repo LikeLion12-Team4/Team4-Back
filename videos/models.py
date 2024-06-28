@@ -15,8 +15,8 @@ class Video(models.Model):
     length = models.IntegerField(validators=[MinValueValidator(0)],null=True)
     youtubelink = models.CharField(max_length=100,null=True)
     #thumbnail = models.ImageField(upload_to="" ,null=True)
-    bodypart = models.ForeignKey(BodyPart,on_delete=models.CASCADE,related_name="BodyPart",null=True)
+    bodypart = models.ForeignKey(BodyPart,on_delete=models.CASCADE,related_name="video",null=True)
     
 class VideoLike(models.Model):
-    video = models.ForeignKey(Video,on_delete=models.CASCADE,related_name="videolikes_from_video",null=True)
-    user = models.ForeignKey(User,on_delete=models.CASCADE,related_name="videolikes_from_user",null=True)
+    video = models.ForeignKey(Video,on_delete=models.CASCADE,related_name="videolike_from_video",null=True)
+    user = models.ForeignKey(User,on_delete=models.CASCADE,related_name="videolike_from_user",null=True)
