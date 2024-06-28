@@ -11,7 +11,7 @@ class PainPart(models.Model):
     field = models.BooleanField(default=False)
 
 class User(AbstractUser):
-    recent_video = models.ForeignKey(Video, on_delete=models.CASCADE,related_name='users_from_recent',null=True)
-    painpart = models.ForeignKey(PainPart,on_delete=models.CASCADE,related_name="users_from_painpart",null=True)
+    recent_video = models.ForeignKey(Video, on_delete=models.CASCADE,related_name='user_from_recent',null=True)
+    painpart = models.ForeignKey(PainPart,on_delete=models.CASCADE,related_name="user_from_painpart",null=True,blank=False)
 
     
