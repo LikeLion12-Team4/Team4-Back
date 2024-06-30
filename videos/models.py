@@ -1,14 +1,9 @@
 from django.db import models
 from django.core.validators import MinValueValidator
 
-class BodyPart(models.Model): 
-    # 영상은 밑에 항목 중 적어도 1개 이상은 포함하고 있어야 함
-    neck = models.BooleanField(default=False)
-    wrist = models.BooleanField(default=False)
-    eye = models.BooleanField(default=False)
-    waist = models.BooleanField(default=False)
-    field = models.BooleanField(default=False)
-
+class BodyPart(models.Model):     
+    partname = models.CharField(max_length=10,null=True)
+    
 class Video(models.Model):
     title = models.CharField(max_length=50,null=True)
     length = models.IntegerField(validators=[MinValueValidator(0)],default=1,null=True) 
