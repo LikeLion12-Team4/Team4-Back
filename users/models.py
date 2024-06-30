@@ -17,5 +17,3 @@ class User(AbstractUser):
 class VideoLike(models.Model):
     video = models.ForeignKey(Video,on_delete=models.CASCADE,related_name="videolike_from_video",null=True)
     user = models.ForeignKey(User,on_delete=models.CASCADE,related_name="videolike_from_user",null=True)
-
-    
