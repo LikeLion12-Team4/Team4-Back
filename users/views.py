@@ -115,6 +115,7 @@ class UserViewSet(viewsets.ModelViewSet):
     def find_username(self,request):
         fullname = request.data.get('fullname')
         email = request.data.get('email')
+        
         try:
             user = User.objects.get(fullname=fullname,email=email)
         except User.DoesNotExist:
@@ -128,6 +129,7 @@ class UserViewSet(viewsets.ModelViewSet):
         username = request.data.get('username')
         fullname = request.data.get('fullname')
         email = request.data.get('email')
+
         try:
             user = User.objects.get(fullname=fullname,email=email,username = username)
         except User.DoesNotExist:
@@ -151,10 +153,12 @@ class VideoLikeListAPIView(ListCreateAPIView):
     def create(self, request, *args, **kwargs): 
         if VideoLike.objects.filter(user=request.user).count()>0: # 이미 특정 동영상에 좋아요를 post한 사용자는 막음
             return Response({"error":"you already posted videolike this video"},status=status.HTTP_400_BAD_REQUEST)
-        try: # 특정 비디오 찾기
+        
+        try: 
             video = Video.objects.get(id = self.kwargs['video_id'])
         except Video.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
+        
         videolike = VideoLike.objects.create(user = request.user, video=video)
         serializer = VideoLikeSerializer(videolike)
         return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
