@@ -11,7 +11,7 @@ class PainPartSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer): 
     userlikes_num = serializers.SerializerMethodField()
     
-    recent_video = VideoSerializer()
+    recent_video = VideoSerializer(required=False)
     painpart = PainPartSerializer()
 
     class Meta:
