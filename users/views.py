@@ -16,7 +16,7 @@ from django.contrib.auth.hashers import check_password
 #from users.permissions import IsOwner
 
 # ==========================================================================================
-#                                   PainPart View 
+#                                       PainPart View 
 # ==========================================================================================
 
 class PainPartRetrieveAPIView(RetrieveUpdateDestroyAPIView): # 특정 아픈부위 수정
@@ -50,7 +50,7 @@ class UserViewSet(viewsets.ModelViewSet):
         password = request.data.get('password')
         user = User.objects.get(username = username) 
         if not check_password(password,user.password): 
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response({"error":"wrong information"},status=status.HTTP_401_UNAUTHORIZED)
         
         token = RefreshToken.for_user(user) 
         serializer = UserSerializer(user) 
@@ -70,7 +70,7 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response(serializer.data,status=status.HTTP_200_OK)
         return Response(status=status.HTTP_401_UNAUTHORIZED)
 
-    # 회원가입 -> username, password, email 중복 체크 하기
+    # 회원가입
     @action(methods=['POST'],detail=True,url_path='join',url_name='user-join')
     def join(self,request,painpart_id):
         try: # 특정 아픈부위 찾기
@@ -83,7 +83,8 @@ class UserViewSet(viewsets.ModelViewSet):
         password = request.data.get('password')
         email = request.data.get('email')
         fullname = request.data.get('fullname')
-            
+        
+        # username, password, email 중복 체크
         if User.objects.filter(username=username).count()>0:
             return Response({"error":"username already existed"},status=status.HTTP_401_UNAUTHORIZED)
         if User.objects.filter(email=email).count()>0:
@@ -92,7 +93,6 @@ class UserViewSet(viewsets.ModelViewSet):
             if check_password(password,check_user.password):
                 return Response({"error":"password already existed"},status=status.HTTP_401_UNAUTHORIZED)
 
-        # django.db.utils.IntegrityError: UNIQUE constraint failed: users_user.username
         user = User.objects.create_user(username =username,
                                         password=password,
                                         email = email,
@@ -134,6 +134,14 @@ class UserViewSet(viewsets.ModelViewSet):
             user = User.objects.get(fullname=fullname,email=email,username = username)
         except User.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
+        
+        password = request.data.get('password')
+        for check_user in User.objects.all(): 
+            if check_password(password,check_user.password):
+                return Response({"error":"password already existed"},status=status.HTTP_401_UNAUTHORIZED)
+            
+        user.set_password(password)
+        user.save()
         serializer = UserSerializer(user)
         return Response(serializer.data,status=status.HTTP_200_OK)
 
@@ -163,3 +171,5 @@ class VideoLikeListAPIView(ListCreateAPIView):
         serializer = VideoLikeSerializer(videolike)
         return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
         
+# 궁금한 점..
+# 
