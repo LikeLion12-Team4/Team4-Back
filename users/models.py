@@ -8,6 +8,7 @@ class PainPart(models.Model):
 class User(AbstractUser):
     recent_video = models.ForeignKey(Video, on_delete=models.CASCADE,related_name='user_from_recent',null=True)
     painpart = models.ForeignKey(PainPart,on_delete=models.CASCADE,related_name="user_from_painpart",null=True,blank=False)
+    fullname = models.CharField(max_length=150,null=True)
 
 class VideoLike(models.Model):
     video = models.ForeignKey(Video,on_delete=models.CASCADE,related_name="videolike_from_video",null=True)
