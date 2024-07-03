@@ -1,9 +1,7 @@
 from django.shortcuts import render
 
-from users.models import User
 from videos.models import BodyPart,Video
 from videos.serializers import BodyPartSerializer, VideoSerializer
-from users.serializers import UserSerializer
 from rest_framework.generics import (
     RetrieveUpdateDestroyAPIView,
     ListCreateAPIView
@@ -13,8 +11,6 @@ from rest_framework.response import Response
 from rest_framework import status
 
 # video 썸네일은 pk가 있어야함 -> 이해 못했음
-# user에 있는 recent_video 여기서 수정하기
-# user가 누른 video만 보기
 
 # ==========================================================================================
 #                                       BodyPart View 
@@ -43,6 +39,13 @@ class VideoListAPIView(ListCreateAPIView):
     lookup_field = 'id'
     lookup_url_kwarg = 'bodypart_id'
     #permission_classes = [IsOwnerOrReadOnly]
+    
+    def perform_create(self, serializer):
+        try: 
+            video = Video.objects.get(id = self.kwargs['video_id'])
+        except Video.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        serializer.save()
 
 class VideoRetrieveAPIView(RetrieveUpdateDestroyAPIView): 
     queryset = Video.objects.all()
