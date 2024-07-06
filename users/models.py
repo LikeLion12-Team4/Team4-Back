@@ -10,3 +10,9 @@ class User(AbstractUser):
 class VideoLike(models.Model):
     video = models.ForeignKey(Video,on_delete=models.CASCADE,related_name="videolike_from_video",null=True)
     user = models.ForeignKey(User,on_delete=models.CASCADE,related_name="videolike_from_user",null=True)
+
+class Email(models.Model):
+    verify_num = models.CharField(max_length=6,null=True)
+    email = models.CharField(max_length=100, null = True)
+    is_verified = models.BooleanField(null=False,default=False)
+
