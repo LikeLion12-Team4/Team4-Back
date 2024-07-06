@@ -3,9 +3,9 @@ from rest_framework.routers import DefaultRouter
 from django.urls import path
 
 urlpatterns = [
-    path('users/',views.PainPartListAPIView.as_view(),name = 'painpart-list'),
-    path('users/<int:painpart_id>/painpart_id/',views.PainPartRetrieveAPIView.as_view(),name = 'painpart-retrieve'),
-    path('users/<int:video_id>/videolike_id/',views.VideoLikeListAPIView.as_view(),name = 'video-list'),
+    path('bodypart/',views.BodyPartListAPIView.as_view(),name = 'bodypart-list'),
+    path('videolike/',views.VideoLikeListAPIView.as_view(),name = 'videolike-list'),
+    path('video_id/<int:video_id>/',views.VideoLikeRetrieveAPIView.as_view(),name = 'videolike-retrieve'),
 ]
 
 router = DefaultRouter()
