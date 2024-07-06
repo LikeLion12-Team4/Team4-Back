@@ -1,13 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from videos.models import Video
+from videos.models import Video,BodyPart
 
-class PainPart(models.Model):
-    painname = models.CharField(max_length=10,null=True)
-    
 class User(AbstractUser):
     recent_video = models.ForeignKey(Video, on_delete=models.CASCADE,related_name='user_from_recent',null=True)
-    painpart = models.ForeignKey(PainPart,on_delete=models.CASCADE,related_name="user_from_painpart",null=True,blank=False)
+    bodypart = models.ManyToManyField(BodyPart,related_name='user')
     fullname = models.CharField(max_length=150,null=True)
 
 class VideoLike(models.Model):
