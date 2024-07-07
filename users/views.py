@@ -89,13 +89,13 @@ class UserViewSet(viewsets.ModelViewSet):
             if check_password(password,check_user.password):
                 return Response({"error":"이미 존재하는 비밀번호입니다."},status=status.HTTP_401_UNAUTHORIZED)
         
-        # try: # 이전에 이메일 인증을 하고 와야함
-        #     email_model = Email.objects.get(email=email)
-        # except Email.DoesNotExist:
-        #     return Response(status=status.HTTP_404_NOT_FOUND)
+        try: # 이전에 이메일 인증을 하고 와야함
+            email_model = Email.objects.get(email=email)
+        except Email.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
         
-        # if not email_model.is_verified: # 이메일 인증안했으면 막힘
-        #     return Response(status=status.HTTP_401_UNAUTHORIZED)
+        if not email_model.is_verified: # 이메일 인증안했으면 막힘
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
         
 
         # 수정하기
@@ -162,10 +162,10 @@ class UserViewSet(viewsets.ModelViewSet):
         try: # 이전에 이메일 인증을 하고 와야함
             email_model = Email.objects.get(email=email)
         except Email.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response({"error":"이메일 인증을 받지 않았습니다."},status=status.HTTP_401_UNAUTHORIZED)
     
         if not email_model.is_verified:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response({"error":"이메일 인증을 받지 않았습니다."},status=status.HTTP_401_UNAUTHORIZED)
         
         email_model.delete()
         user = User.objects.get(email=email,fullname=fullname)
@@ -190,10 +190,10 @@ class UserViewSet(viewsets.ModelViewSet):
         try: # 이전에 이메일 인증을 하고 와야함
             email_model = Email.objects.get(email=email)
         except Email.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response({"error":"이메일 인증을 받지 않았습니다."},status=status.HTTP_401_UNAUTHORIZED)
         
         if not email_model.is_verified:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response({"error":"이메일 인증을 받지 않았습니다."},status=status.HTTP_401_UNAUTHORIZED)
         
         email_model.delete()
         user = User.objects.get(username=username,email=email)
