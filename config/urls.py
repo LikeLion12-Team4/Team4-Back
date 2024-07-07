@@ -18,11 +18,19 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf.urls.static import static 
 from django.conf import settings
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('locations/',include('locations.urls')),
-    #path('alarms/',include('alarms.urls')),
+    path('alarms/',include('alarms.urls')),
     path('',include('users.urls')),
     path('',include('videos.urls')),
+
+    #소셜로그인
+    path('users/', include('dj_rest_auth.urls')),
+    path('users/', include('dj_rest_auth.registration.urls')),
+    path('users/', include('allauth.urls')),
+    # path('api/users/', include('allauth.urls')),
+    # path('api/users/', include('users.urls')),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
