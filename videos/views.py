@@ -6,6 +6,7 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated,AllowAny,IsAdminUser
 
 # ==========================================================================================
 #                                       Video View 
@@ -17,7 +18,14 @@ class VideoViewSet(viewsets.ModelViewSet): # url만 입력하면 영상 길이, 
     serializer_class = VideoSerializer
     lookup_field = 'id'
     lookup_url_kwarg = 'video_id'
-    #permission_classes = [IsOwnerOrReadOnly]
+    permission_classes = [IsAdminUser]
+
+    def get_permissions(self):
+        if self.action == "list":
+            return [AllowAny()]
+        elif self.action =="retrieve":
+            return [IsAuthenticated()]
+        return super().get_permissions()
     
     def extract_thumbnail_link(self,youtubelink): # 썸네일 추출 
         s = youtubelink.find("v=")+2
@@ -27,7 +35,7 @@ class VideoViewSet(viewsets.ModelViewSet): # url만 입력하면 영상 길이, 
         thumbnail = youtubelink[s:e]
         return "https://img.youtube.com/vi/{}/default.jpg".format(thumbnail)
 
-    # 동영상 생성
+    # 동영상 생성, post는 관리자만 
     def create(self, request, *args, **kwargs):
         title = request.data.get('title')
         length = request.data.get('length')
@@ -56,11 +64,8 @@ class VideoViewSet(viewsets.ModelViewSet): # url만 입력하면 영상 길이, 
     
     # 특정 동영상 보기 -> recent_video 업데이트
     def retrieve(self, request, *args, **kwargs):
-        if request.user.is_authenticated: 
-            video = Video.objects.get(id = self.kwargs['video_id'])
-            request.user.recent_video = video
-            request.user.save()
-            videoserializer = VideoSerializer(video)
-            return Response(videoserializer.data,status=status.HTTP_200_OK)
-        return Response(status=status.HTTP_401_UNAUTHORIZED)
-        #permission_classes = [IsOwnerOrReadOnly]
+        video = Video.objects.get(id = self.kwargs['video_id'])
+        request.user.recent_video = video
+        request.user.save()
+        videoserializer = VideoSerializer(video)
+        return Response(videoserializer.data,status=status.HTTP_200_OK)
