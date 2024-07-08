@@ -27,9 +27,9 @@ urlpatterns = [
     path('',include('videos.urls')),
 
     #소셜로그인
-    path('users/', include('dj_rest_auth.urls')),
-    path('users/', include('dj_rest_auth.registration.urls')),
-    path('users/', include('allauth.urls')),
+    # path('users/', include('dj_rest_auth.urls')),
+    # path('users/', include('dj_rest_auth.registration.urls')),
+    # path('users/', include('allauth.urls')),
     # path('api/users/', include('allauth.urls')),
     # path('api/users/', include('users.urls')),
 ]
