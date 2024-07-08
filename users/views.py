@@ -13,6 +13,7 @@ from rest_framework.generics import (
     CreateAPIView,
     ListCreateAPIView
 )
+from rest_framework.permissions import IsAuthenticated,AllowAny,IsAdminUser
 from django.contrib.auth.hashers import check_password
 from django.core.mail import send_mail
 
@@ -27,7 +28,7 @@ class BodyPartListAPIView(ListCreateAPIView): # 아픈부위 생성, 아픈 부�
     queryset = BodyPart.objects.all()
     serializer_class = BodyPartSerializer
     lookup_field = 'id'
-    #permission_class = [IsOwnerOrReadOnly]
+    permission_class = [IsAdminUser]
 
 # ==========================================================================================
 #                                       User View
@@ -38,7 +39,12 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     lookup_field = 'id'
     lookup_url_kwarg = 'user_id' 
-    #permission_classes = [IsOwner] 
+    permission_classes = [AllowAny] 
+    
+    def get_permissions(self):
+        if self.action == "get_user_info" or self.action == "survey" or self.action == "quit" or self.action == "reset_pwd":
+            return [IsAuthenticated()]
+        return super().get_permissions()
     
     # 로그인
     @action(methods=['POST'],detail = False, url_path='login',url_name='user-login')
@@ -62,10 +68,8 @@ class UserViewSet(viewsets.ModelViewSet):
     # 현재 로그인 중인 회원정보 보기
     @action(methods=['GET'],detail = False, url_path='user',url_name='user-info')
     def get_user_info(self,request): 
-        if request.user.is_authenticated:
-            serializer = self.get_serializer(request.user)
-            return Response(serializer.data,status=status.HTTP_200_OK)
-        return Response(status=status.HTTP_401_UNAUTHORIZED)
+        serializer = self.get_serializer(request.user)
+        return Response(serializer.data,status=status.HTTP_200_OK)
     
     # 회원가입 ( 회원가입 후에 바로 설문조사 해야 함 bodypart 데이터를 넣기 위해, 테스트 할 때 이메일 인증부터 받고 오기 )
     @action(methods=['POST'],detail=False,url_path='join',url_name='user-join')
@@ -119,34 +123,30 @@ class UserViewSet(viewsets.ModelViewSet):
     # 설문조사 - user 아픈 부위 넣기 ( 회원가입 후에 바로 이루어짐, 로그인 한 상태로 이루어져야 함 ), 회원가입 후에 바로 로그인이 되도록 어케 함?
     @action(methods=['PUT'],detail=False,url_path='survey',url_name='user-survey') 
     def survey(self,request):
-        if request.user.is_authenticated:
-            query = request.data.get('bodypart') 
-            bodypart_list = query.split(',') # request.data가 목,어깨,눈 형식일 때
-            #bodypart_list = [int(x) for x in query.split(',')] #request.data 형태가 1,2,3 숫자일 때
+        query = request.data.get('bodypart') 
+        bodypart_list = query.split(',') # request.data가 목,어깨,눈 형식일 때
+        #bodypart_list = [int(x) for x in query.split(',')] #request.data 형태가 1,2,3 숫자일 때
 
-            for bp in BodyPart.objects.filter(user=request.user): # bodypart 객체에서 user를 삭제 -> 추후에 수정을 위해
-                bp.user.remove(request.user)
-            
-            for bp in BodyPart.objects.all(): # bodypart 객체에 user 추가
-                for bodyname in bodypart_list:
-                    if bp.bodyname == bodyname:
-                        bp.user.add(request.user)
-            
-            # user 객체에 bodypart 추가
-            bodypart = BodyPart.objects.filter(user=request.user)
-            request.user.bodypart.set(bodypart)
-            serializer = UserSerializer(request.user)
-            return Response(serializer.data,status=status.HTTP_201_CREATED)
-        return Response(status=status.HTTP_401_UNAUTHORIZED)
+        for bp in BodyPart.objects.filter(user=request.user): # bodypart 객체에서 user를 삭제 -> 추후에 수정을 위해
+            bp.user.remove(request.user)
+        
+        for bp in BodyPart.objects.all(): # bodypart 객체에 user 추가
+            for bodyname in bodypart_list:
+                if bp.bodyname == bodyname:
+                    bp.user.add(request.user)
+        
+        # user 객체에 bodypart 추가
+        bodypart = BodyPart.objects.filter(user=request.user)
+        request.user.bodypart.set(bodypart)
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data,status=status.HTTP_201_CREATED)
     
     # 회원탈퇴 ( 로그인한 회원만 탈퇴 )
     @action(methods=['DELETE'],detail = False, url_path='quit',url_name='user-quit')
     def quit(self, request):
-        if request.user.is_authenticated:
-            instance = request.user
-            self.perform_destroy(instance)
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response(status=status.HTTP_401_UNAUTHORIZED)
+        instance = request.user
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
     
     # 아이디 찾기
     @action(methods=['GET'],detail = False, url_path='find_id',url_name='user-findid')
@@ -210,9 +210,6 @@ class UserViewSet(viewsets.ModelViewSet):
     # 비밀번호 재설정 ( 비밀번호 찾기 화면에서 이메일 인증을 했으면 로그인이 되도록 )
     @action(methods=['PUT'],detail = False, url_path='reset_pwd',url_name='user-findpwd')
     def reset_pwd(self,request):
-        if not request.user.is_authenticated:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
-        
         password = request.data.get('password')
         if self.pwd_valid_input(password):
             return Response({"error":"비밀번호는 8~15자의 영문, 숫자, 특수문자 2가지 이상 조합으로 사용 가능합니다."},status=status.HTTP_401_UNAUTHORIZED)
@@ -286,14 +283,13 @@ class VideoLikeListAPIView(ListAPIView):
     queryset = VideoLike.objects.all()
     serializer_class = VideoLikeSerializer
     lookup_field = 'id'
+    permission_classes = [IsAuthenticated]
 
     # 좋아요 누른 동영상 보기
     def list(self, request, *args, **kwargs):
-        if request.user.is_authenticated:
-            videolike = VideoLike.objects.filter(user=request.user)
-            videolikeserializer = self.get_serializer(videolike,many=True)
-            return Response(videolikeserializer.data,status=status.HTTP_200_OK)
-        return Response(status=status.HTTP_401_UNAUTHORIZED)
+        videolike = VideoLike.objects.filter(user=request.user)
+        videolikeserializer = self.get_serializer(videolike,many=True)
+        return Response(videolikeserializer.data,status=status.HTTP_200_OK)
 
 # 동영상 좋아요를 접근하기 위해 동영상 id 사용
 class VideoLikeRetrieveAPIView(RetrieveUpdateDestroyAPIView,CreateAPIView): 
@@ -301,12 +297,10 @@ class VideoLikeRetrieveAPIView(RetrieveUpdateDestroyAPIView,CreateAPIView):
     serializer_class = VideoLikeSerializer
     lookup_field = 'id'
     lookup_url_kwarg = 'video_id' # 동영상 id로 동영상 좋아요를 접근함
+    permission_classes = [IsAuthenticated]
 
     # 동영상 좋아요 삭제 ( 로그인 해야함 )
     def destroy(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
-        
         try: 
             video = Video.objects.get(id = self.kwargs['video_id'])
         except Video.DoesNotExist:
@@ -321,9 +315,6 @@ class VideoLikeRetrieveAPIView(RetrieveUpdateDestroyAPIView,CreateAPIView):
     
     # 동영상 좋아요 post
     def create(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
-        
         try: 
             video = Video.objects.get(id = self.kwargs['video_id'])
         except Video.DoesNotExist:
