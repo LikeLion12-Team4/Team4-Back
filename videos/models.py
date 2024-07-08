@@ -9,5 +9,5 @@ class Video(models.Model):
     length = models.IntegerField(validators=[MinValueValidator(0)],default=1,null=True) 
     youtubelink = models.CharField(max_length=100,null=True)
     thumbnail = models.CharField(max_length=100,null=True)
-    bodypart = models.ForeignKey(BodyPart,on_delete=models.CASCADE,related_name="video",null=True)
+    bodypart = models.ForeignKey(BodyPart,on_delete=models.SET_NULL,related_name="video",null=True)
 
