@@ -22,10 +22,20 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 #secret.json 값 가져오기
 import json
 import sys
+from django.core.exceptions import ImproperlyConfigured
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 ROOT_DIR = os.path.dirname(BASE_DIR)
 SECRET_BASE_FILE = os.path.join(BASE_DIR, 'secrets.json')
 secrets = json.loads(open(SECRET_BASE_FILE).read())
+
+def get_secret(setting,secrets=secrets):
+    try:
+        return secrets[setting]
+    except KeyError:
+        error_msg = "Set the {} environment variable".format(setting)
+        raise ImproperlyConfigured(error_msg)
+    
 for key, value in secrets.items():
     setattr(sys.modules[__name__], key, value)
 
@@ -34,22 +44,14 @@ AUTH_USER_MODEL='users.User'
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-+u&43ncim9^dn(2hyh*ir^1-u1$wku#vq8x&ydo1cw-8&ggvp5'
+SECRET_KEY = get_secret("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-SOCIALACCOUNT_PROVIDERS = {
-    'kakao': {
-        'APP': {
-            'client_id': "3f5d21f6fae61538359a00edb5bf2a21",
-            'secret': "1102026",
-            'key': ''
-        }
-    }
-}
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -65,15 +67,15 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'rest_framework_simplejwt',
 
-    'dj_rest_auth',
-    'dj_rest_auth.registration',
+    #'dj_rest_auth',
+    #'dj_rest_auth.registration',
 
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
+    #'allauth',
+    #'allauth.account',
+    #'allauth.socialaccount',
 
-    'allauth.socialaccount.providers.kakao',
-    'allauth.socialaccount.providers.naver',
+    #'allauth.socialaccount.providers.kakao',
+    #'allauth.socialaccount.providers.naver',
     #app
     'users',
     'videos',
@@ -119,8 +121,14 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'allauth.account.middleware.AccountMiddleware',
 ]
+
+LOGIN_REDIRECT_URL = '/'
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+)
 
 ROOT_URLCONF = 'config.urls'
 
@@ -197,7 +205,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.naver.com'
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
-EMAIL_HOST_USER = '네이버 이메일'
-EMAIL_HOST_PASSWORD = '네이버 비밀번호'
+EMAIL_HOST_USER = 'likelion12@naver.com'
+EMAIL_HOST_PASSWORD = get_secret("EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 

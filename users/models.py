@@ -3,7 +3,7 @@ from django.contrib.auth.models import AbstractUser
 from videos.models import Video,BodyPart
 
 class User(AbstractUser):
-    recent_video = models.ForeignKey(Video, on_delete=models.CASCADE,related_name='user_from_recent',null=True)
+    recent_video = models.ForeignKey(Video, on_delete=models.SET_NULL,related_name='user_from_recent',null=True)
     bodypart = models.ManyToManyField(BodyPart,related_name='user')
     fullname = models.CharField(max_length=150,null=True)
 
