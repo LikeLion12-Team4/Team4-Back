@@ -61,6 +61,7 @@ class UserViewSet(viewsets.ModelViewSet):
         token = RefreshToken.for_user(user)  # 특정 함수를 실행하고 다음 실행은 로그인된 상태로 하게 하려면 token을 줘야함
         serializer = self.get_serializer(user) 
         return Response(
+            
             status=status.HTTP_200_OK,
             data={
                 "token":str(token.access_token), 
