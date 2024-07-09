@@ -6,6 +6,7 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import action
+from rest_framework.decorators import api_view
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.generics import (
     RetrieveUpdateDestroyAPIView,
@@ -257,55 +258,46 @@ class UserViewSet(viewsets.ModelViewSet):
         return re.match(pattern, user_input) is None
     
 # ==========================================================================================
-#                                         Email View
+#                                         Email FBV
 # ========================================================================================== 
 
-class EmailRetrieveAPIView(RetrieveUpdateDestroyAPIView,CreateAPIView): 
-    serializer_class = EmailSerializer
-    permission_classes = [AllowAny]
-    def get_permissions(self):
-        if self.request.method == "retrieve" or self.request.method=="destroy":
-            return [IsAdminUser()]
-        return super().get_permissions()
+@api_view('POST')
+def send_email(request):
+    random_num = f"{randint(0,999999):06}" 
+    subject = "자세차렷 인증 이메일 입니다."
+    message = f'이메일 인증 코드는 < {random_num} > 입니다.'
+    from_email = "likelion12@naver.com"
+    recipient_list = [request.data.get('email')]
 
-    # 이메일 보내기
-    def create(self, request, *args, **kwargs):
-        random_num = f"{randint(0,999999):06}" 
-        subject = "자세차렷 인증 이메일 입니다."
-        message = f'이메일 인증 코드는 < {random_num} > 입니다.'
-        from_email = "likelion12@naver.com"
-        recipient_list = [request.data.get('email')]
+    if Email.objects.filter(email = recipient_list[0]).count() >0:
+        email = Email.objects.get(email = recipient_list[0])
+        email.delete()
 
-        if Email.objects.filter(email = recipient_list[0]).count() >0:
-            email = Email.objects.get(email = recipient_list[0])
-            email.delete()
+    email = Email.objects.create(verify_num = random_num,email=recipient_list[0])
+    email.save()
 
-        email = Email.objects.create(verify_num = random_num,email=recipient_list[0])
-        email.save()
+    try:
+        send_mail(subject=subject,message=message,from_email=from_email,recipient_list=recipient_list,fail_silently=False)
+        return Response(status=status.HTTP_200_OK)
+    except Exception as e: # 서버 오류 시 예외 처리
+        return Response({"error": "Email send error"}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
-        try:
-            send_mail(subject=subject,message=message,from_email=from_email,recipient_list=recipient_list,fail_silently=False)
-            return Response(status=status.HTTP_200_OK)
-        except Exception as e: # 서버 오류 시 예외 처리
-            return Response({"error": "Email send error"}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+@api_view('POST')
+def verify_email(request):
+    email = request.data.get('email')
+    verify = request.data.get('verify')
+
+    try: # 이전에 이메일 인증을 하고 와야함
+        email_model = Email.objects.get(email=email)
+    except Email.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
     
-    # 이메일 인증받기
-    def update(self, request, *args, **kwargs):
-        email = request.data.get('email')
-        verify = request.data.get('verify')
-
-        try: # 이전에 이메일 인증을 하고 와야함
-            email_model = Email.objects.get(email=email)
-        except Email.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        
-        if verify == email_model.verify_num:
-            email_model.is_verified = True
-            email_model.save()
-            return Response({"성공":"인증번호를 확인하였습니다."},status=status.HTTP_202_ACCEPTED)
-        else:
-            return Response({"오류":"인증번호가 올바르지 않습니다."},status=status.HTTP_406_NOT_ACCEPTABLE)
-
+    if verify == email_model.verify_num:
+        email_model.is_verified = True
+        email_model.save()
+        return Response({"성공":"인증번호를 확인하였습니다."},status=status.HTTP_202_ACCEPTED)
+    else:
+        return Response({"오류":"인증번호가 올바르지 않습니다."},status=status.HTTP_406_NOT_ACCEPTABLE)
 
 # ==========================================================================================
 #                                       VideoLike View
