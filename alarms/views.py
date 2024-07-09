@@ -23,9 +23,9 @@ class AlarmSetView(generics.CreateAPIView):
     permission_classes=[IsAuthenticated]
     serializer_class=OptionSerializer
     def perform_create(self, serializer):
-        if Option.objects.filter(user_id=self.request.user).exists(): #option은 일대일관계로 이미 존재하면 생성할 때 오류남
+        if Option.objects.filter(owner=self.request.user).exists(): #option은 일대일관계로 이미 존재하면 생성할 때 오류남
             raise exceptions.ValidationError({'error': '이미 존재'}) #그래서 400에러 발생하도록
-        serializer.save(user_id=self.request.user,is_option=True) #생성될때 True값으로 바뀌도록 하여서 설정 여부 확인할 수 있게
+        serializer.save(owner=self.request.user,is_option=True) #생성될때 True값으로 바뀌도록 하여서 설정 여부 확인할 수 있게
 
         
 
@@ -37,7 +37,7 @@ class OptionView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = OptionSerializer
     def get_object(self):
         try:
-            return Option.objects.get(user_id=self.request.user)
+            return Option.objects.get(owner=self.request.user)
         except Option.DoesNotExist:
             raise exceptions.NotFound({'error':'알람 설정 존재x'}) #404에러
     #is_option필드로 알람 설정여부 확인 가능 
