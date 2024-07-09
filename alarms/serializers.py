@@ -9,7 +9,7 @@ class AlarmContentSerializer(serializers.ModelSerializer):
         fields='__all__'
 
 class OptionSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
+    user_id = UserSerializer()
     class Meta:
         model=Option
         fields='__all__'
