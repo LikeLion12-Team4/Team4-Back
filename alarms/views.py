@@ -23,7 +23,7 @@ class AlarmSetView(generics.CreateAPIView):
     permission_classes=[IsAuthenticated]
     serializer_class=OptionSerializer
     def perform_create(self, serializer):
-        if Option.objects.filter(user=self.request.user).exists(): #option은 일대일관계로 이미 존재하면 생성할 때 오류남
+        if Option.objects.filter(user_id=self.request.user).exists(): #option은 일대일관계로 이미 존재하면 생성할 때 오류남
             raise exceptions.ValidationError({'error': '이미 존재'}) #그래서 400에러 발생하도록
         serializer.save(user_id=self.request.user,is_option=True) #생성될때 True값으로 바뀌도록 하여서 설정 여부 확인할 수 있게
 
