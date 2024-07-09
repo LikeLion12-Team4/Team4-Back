@@ -263,7 +263,6 @@ class UserViewSet(viewsets.ModelViewSet):
 class EmailRetrieveAPIView(RetrieveUpdateDestroyAPIView,CreateAPIView): 
     queryset = Email.objects.all()
     serializer_class = EmailSerializer
-    lookup_field = 'id'
     permission_classes = [AllowAny]
 
     def get_permissions(self):
@@ -316,6 +315,7 @@ class EmailRetrieveAPIView(RetrieveUpdateDestroyAPIView,CreateAPIView):
 class VideoLikeListAPIView(ListAPIView):
     queryset = VideoLike.objects.all()
     serializer_class = VideoLikeSerializer
+    lookup_field = 'id'
     permission_classes = [IsAuthenticated]
 
     # 좋아요 누른 동영상 보기
