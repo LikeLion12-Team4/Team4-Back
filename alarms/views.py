@@ -37,7 +37,7 @@ class OptionView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = OptionSerializer
     def get_object(self):
         try:
-            return Option.objects.get(user=self.request.user)
+            return Option.objects.get(user_id=self.request.user)
         except Option.DoesNotExist:
             raise exceptions.NotFound({'error':'알람 설정 존재x'}) #404에러
     #is_option필드로 알람 설정여부 확인 가능 
