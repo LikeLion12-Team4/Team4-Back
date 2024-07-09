@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from alarms.models import AlarmContent
 from alarms.models import Option
+from users.serializers import UserSerializer
 
 class AlarmContentSerializer(serializers.ModelSerializer):
     class Meta:
@@ -8,6 +9,7 @@ class AlarmContentSerializer(serializers.ModelSerializer):
         fields='__all__'
 
 class OptionSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
     class Meta:
         model=Option
         fields='__all__'
