@@ -71,7 +71,7 @@ class MessageView(generics.RetrieveAPIView):
 #content 생성 뷰(이미지 업로드)
 #관리자만
 class AlarmContentView(views.APIView):
-    permission_classes=[IsAdminUser]
+    #permission_classes=[IsAdminUser]
     parser_classes = (MultiPartParser, FormParser)
     serializer_class = AlarmContentSerializer
 
