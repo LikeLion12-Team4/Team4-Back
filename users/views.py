@@ -44,6 +44,8 @@ class UserViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action == "get_user_info" or self.action == "survey" or self.action == "quit" or self.action == "reset_pwd":
             return [IsAuthenticated()]
+        elif self.action == "list" or self.action == "retrieve" or self.action=="destroy":
+            return [IsAdminUser()]
         return super().get_permissions()
     
     # 로그인
@@ -149,7 +151,7 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
     
     # 아이디 찾기
-    @action(methods=['GET'],detail = False, url_path='find_id',url_name='user-findid')
+    @action(methods=['POST'],detail = False, url_path='find_id',url_name='user-findid')
     def find_id(self,request):
         fullname = request.data.get('fullname')
         email = request.data.get('email')
@@ -174,7 +176,7 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response(serializer.data,status=status.HTTP_200_OK)
     
     # 비밀번호 찾기
-    @action(methods=['GET'],detail = False, url_path='find_pwd',url_name='user-findpwd')
+    @action(methods=['POST'],detail = False, url_path='find_pwd',url_name='user-findpwd')
     def find_pwd(self,request):
         username = request.data.get('username')
         fullname = request.data.get('fullname')
@@ -228,7 +230,7 @@ class UserViewSet(viewsets.ModelViewSet):
     
         
     # 이메일 보내는 함수
-    @action(methods=['GET'],detail=False,url_path='send',url_name='email-send')
+    @action(methods=['POST'],detail=False,url_path='send',url_name='email-send')
     def email_send(self,request):
         random_num = f"{randint(0,999999):06}" 
         subject = "자세차렷 인증 이메일 입니다."
@@ -250,7 +252,7 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response({"error": "Email send error"}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
     
     # 이메일 인증번호 확인 -> 이메일 모델을 만들어서 해결
-    @action(methods=['GET'],detail=False,url_path='verify',url_name='email-verify')
+    @action(methods=['PUT'],detail=False,url_path='verify',url_name='email-verify')
     def email_verify(self,request):
         email = request.data.get('email')
         verify = request.data.get('verify')
