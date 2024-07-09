@@ -261,6 +261,7 @@ class UserViewSet(viewsets.ModelViewSet):
 # ========================================================================================== 
 
 class EmailRetrieveAPIView(RetrieveUpdateDestroyAPIView,CreateAPIView): 
+    lookup_field = 'id'
     queryset = Email.objects.all()
     serializer_class = EmailSerializer
     permission_classes = [AllowAny]
