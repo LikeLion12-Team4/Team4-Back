@@ -261,7 +261,7 @@ class UserViewSet(viewsets.ModelViewSet):
 #                                         Email FBV
 # ========================================================================================== 
 
-@api_view('POST')
+@api_view(['POST'])
 def send_email(request):
     random_num = f"{randint(0,999999):06}" 
     subject = "자세차렷 인증 이메일 입니다."
@@ -282,7 +282,7 @@ def send_email(request):
     except Exception as e: # 서버 오류 시 예외 처리
         return Response({"error": "Email send error"}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
-@api_view('POST')
+@api_view(['POST'])
 def verify_email(request):
     email = request.data.get('email')
     verify = request.data.get('verify')
