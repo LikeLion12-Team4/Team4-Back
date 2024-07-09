@@ -265,7 +265,7 @@ class EmailRetrieveAPIView(RetrieveUpdateDestroyAPIView,CreateAPIView):
     serializer_class = EmailSerializer
     lookup_field = 'id'
     lookup_url_kwarg = 'email_id' # 동영상 id로 동영상 좋아요를 접근함
-    permission_classes = [AllowAny()]
+    permission_classes = [AllowAny]
 
     def get_permissions(self):
         if self.action == "retrieve" or self.action=="destroy":
