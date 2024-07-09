@@ -25,15 +25,14 @@ class AlarmSetView(generics.CreateAPIView):
     def perform_create(self, serializer):
         if Option.objects.filter(user=self.request.user).exists(): #option은 일대일관계로 이미 존재하면 생성할 때 오류남
             raise exceptions.ValidationError({'error': '이미 존재'}) #그래서 400에러 발생하도록
-        serializer.save(user=self.request.user,is_option=True) #생성될때 True값으로 바뀌도록 하여서 설정 여부 확인할 수 있게
+        serializer.save(user_id=self.request.user,is_option=True) #생성될때 True값으로 바뀌도록 하여서 설정 여부 확인할 수 있게
 
         
 
 #알림 설정 확인 및 수정 (변경)
 #로그인0,해당 유저만
 class OptionView(generics.RetrieveUpdateDestroyAPIView):
-    # permission_classes=[IsOwner]
-    permission_classes=[IsAuthenticated]
+    permission_classes=[IsOwner]
     #url 파라미터 사용 안 하는 방향으로 변경 => 자기 알림만 확인 0 =? 그럼 permission 필요 없어지나?? 근데 애초에 로그인해야 알림 설정할 수 있는 화면 나타나긴 함
     serializer_class = OptionSerializer
     def get_object(self):
@@ -71,7 +70,7 @@ class MessageView(generics.RetrieveAPIView):
 #content 생성 뷰(이미지 업로드)
 #관리자만
 class AlarmContentView(views.APIView):
-    #permission_classes=[IsAdminUser]
+    permission_classes=[IsAdminUser]
     parser_classes = (MultiPartParser, FormParser)
     serializer_class = AlarmContentSerializer
 
