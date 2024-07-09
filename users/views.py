@@ -228,29 +228,6 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(request.user)
         return Response(serializer.data,status=status.HTTP_200_OK)
     
-        
-    # 이메일 보내는 함수
-    @action(methods=['POST'],detail=False,url_path='send',url_name='email-send')
-    def email_send(self,request):
-        random_num = f"{randint(0,999999):06}" 
-        subject = "자세차렷 인증 이메일 입니다."
-        message = f'이메일 인증 코드는 < {random_num} > 입니다.'
-        from_email = "likelion12@naver.com"
-        recipient_list = [request.data.get('email')]
-
-        if Email.objects.filter(email = recipient_list[0]).count() >0:
-            email = Email.objects.get(email = recipient_list[0])
-            email.delete()
-
-        email = Email.objects.create(verify_num = random_num,email=recipient_list[0])
-        email.save()
-
-        try:
-            send_mail(subject=subject,message=message,from_email=from_email,recipient_list=recipient_list,fail_silently=False)
-            return Response(status=status.HTTP_200_OK)
-        except Exception as e: # 서버 오류 시 예외 처리
-            return Response({"error": "Email send error"}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
-    
     # 이메일 인증번호 확인 -> 이메일 모델을 만들어서 해결
     @action(methods=['PUT'],detail=False,url_path='verify',url_name='email-verify')
     def email_verify(self,request):
@@ -278,6 +255,62 @@ class UserViewSet(viewsets.ModelViewSet):
     def pwd_valid_input(self, user_input): 
         pattern = r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,15}$|^(?=.*\d)(?=.*[@$!%*?&])[\d@$!%*?&]{8,15}$|^(?=.*[A-Za-z])(?=.*[@$!%*?&])[A-Za-z@$!%*?&]{8,15}$|^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,15}$'
         return re.match(pattern, user_input) is None
+    
+# ==========================================================================================
+#                                         Email View
+# ========================================================================================== 
+
+class EmailRetrieveAPIView(RetrieveUpdateDestroyAPIView,CreateAPIView): 
+    queryset = Email.objects.all()
+    serializer_class = EmailSerializer
+    lookup_field = 'id'
+    lookup_url_kwarg = 'email_id' # 동영상 id로 동영상 좋아요를 접근함
+    permission_classes = [AllowAny()]
+
+    def get_permissions(self):
+        if self.action == "retrieve" or self.action=="destroy":
+            return [IsAdminUser()]
+        return super().get_permissions()
+
+    # 이메일 보내기
+    def create(self, request, *args, **kwargs):
+        random_num = f"{randint(0,999999):06}" 
+        subject = "자세차렷 인증 이메일 입니다."
+        message = f'이메일 인증 코드는 < {random_num} > 입니다.'
+        from_email = "likelion12@naver.com"
+        recipient_list = [request.data.get('email')]
+
+        if Email.objects.filter(email = recipient_list[0]).count() >0:
+            email = Email.objects.get(email = recipient_list[0])
+            email.delete()
+
+        email = Email.objects.create(verify_num = random_num,email=recipient_list[0])
+        email.save()
+
+        try:
+            send_mail(subject=subject,message=message,from_email=from_email,recipient_list=recipient_list,fail_silently=False)
+            return Response(status=status.HTTP_200_OK)
+        except Exception as e: # 서버 오류 시 예외 처리
+            return Response({"error": "Email send error"}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+    
+    # 이메일 인증받기
+    def update(self, request, *args, **kwargs):
+        email = request.data.get('email')
+        verify = request.data.get('verify')
+
+        try: # 이전에 이메일 인증을 하고 와야함
+            email_model = Email.objects.get(email=email)
+        except Email.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        
+        if verify == email_model.verify_num:
+            email_model.is_verified = True
+            email_model.save()
+            return Response({"성공":"인증번호를 확인하였습니다."},status=status.HTTP_202_ACCEPTED)
+        else:
+            return Response({"오류":"인증번호가 올바르지 않습니다."},status=status.HTTP_406_NOT_ACCEPTABLE)
+
+
 # ==========================================================================================
 #                                       VideoLike View
 # ========================================================================================== 
