@@ -264,11 +264,11 @@ class EmailRetrieveAPIView(RetrieveUpdateDestroyAPIView,CreateAPIView):
     queryset = Email.objects.all()
     serializer_class = EmailSerializer
     lookup_field = 'id'
-    lookup_url_kwarg = 'email_id' # 동영상 id로 동영상 좋아요를 접근함
+    lookup_url_kwarg = 'email_id'
     permission_classes = [AllowAny]
 
     def get_permissions(self):
-        if self.action == "retrieve" or self.action=="destroy":
+        if self.request.method == "retrieve" or self.request.method=="destroy":
             return [IsAdminUser()]
         return super().get_permissions()
 
