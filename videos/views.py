@@ -18,7 +18,7 @@ class VideoViewSet(viewsets.ModelViewSet): # url만 입력하면 영상 길이, 
     serializer_class = VideoSerializer
     lookup_field = 'id'
     lookup_url_kwarg = 'video_id'
-    permission_classes = [IsAdminUser]
+    permission_classes = [AllowAny]
 
     def get_permissions(self):
         if self.action == "list":
