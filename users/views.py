@@ -30,8 +30,9 @@ class BodyPartListAPIView(ListCreateAPIView): # 아픈부위 생성, 아픈 부�
     lookup_field = 'id'
     permission_classes = [IsAdminUser]
 
-@permission_classes([IsAdminUser])
+
 @api_view(['DELETE']) 
+@permission_classes([IsAdminUser])
 def delete_bodypart(request,bodypart_id): # 아픈부위 삭제
     try:
         bodypart = BodyPart.objects.get(id=bodypart_id)
