@@ -29,10 +29,7 @@ class BodyPartListAPIView(ListCreateAPIView): # 아픈부위 생성, 아픈 부�
     queryset = BodyPart.objects.all()
     serializer_class = BodyPartSerializer
     lookup_field = 'id'
-    permission_class = [IsAdminUser]
-
-    def get_permissions(self):
-        return super().get_permissions()
+    permission_classes = [IsAdminUser]
 
 @api_view(['DELETE']) 
 def delete_bodypart(request,bodypart_id): # 아픈부위 삭제
