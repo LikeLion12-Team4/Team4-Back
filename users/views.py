@@ -31,6 +31,13 @@ class BodyPartListAPIView(ListCreateAPIView): # 아픈부위 생성, 아픈 부�
     lookup_field = 'id'
     permission_class = [IsAdminUser]
 
+class BodyPartRetrieveAPIView(RetrieveUpdateDestroyAPIView): # 아픈부위 삭제
+    queryset = BodyPart.objects.all()
+    serializer_class = BodyPartSerializer
+    lookup_field = 'id'
+    lookup_url_kwarg = 'bodypart_id'
+    permission_class = [IsAdminUser]
+
 # ==========================================================================================
 #                                       User View
 # ==========================================================================================
