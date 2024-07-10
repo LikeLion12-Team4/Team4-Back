@@ -33,7 +33,7 @@ class VideoViewSet(viewsets.ModelViewSet): # url만 입력하면 영상 길이, 
         if e == -1:
             e = len(youtubelink)
         thumbnail = youtubelink[s:e]
-        return "https://img.youtube.com/vi/{}/default.jpg".format(thumbnail)
+        return "https://img.youtube.com/vi/{}/hqdefault.jpg".format(thumbnail)
 
     # 동영상 생성, post는 관리자만 
     def create(self, request, *args, **kwargs):
