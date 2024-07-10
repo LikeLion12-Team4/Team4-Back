@@ -1,13 +1,9 @@
-from django.shortcuts import render
-
 from users.models import BodyPart,Video
 from videos.serializers import VideoSerializer
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.decorators import action,api_view
 from rest_framework.permissions import IsAuthenticated,AllowAny,IsAdminUser
-import cv2
 
 # ==========================================================================================
 #                                       Video View 
