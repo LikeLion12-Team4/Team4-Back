@@ -5,8 +5,7 @@ from videos.models import Video
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.decorators import action
-from rest_framework.decorators import api_view
+from rest_framework.decorators import action,api_view,permission_classes
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.generics import (
     RetrieveUpdateDestroyAPIView,
@@ -31,6 +30,7 @@ class BodyPartListAPIView(ListCreateAPIView): # 아픈부위 생성, 아픈 부�
     lookup_field = 'id'
     permission_classes = [IsAdminUser]
 
+@permission_classes([IsAdminUser])
 @api_view(['DELETE']) 
 def delete_bodypart(request,bodypart_id): # 아픈부위 삭제
     try:
