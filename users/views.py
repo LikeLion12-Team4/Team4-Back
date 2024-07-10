@@ -383,7 +383,7 @@ from .serializers import UserSerializer
 
 import requests
 
-BASE_URL = 'http://127.0.0.1:8000/'
+BASE_URL = 'http://3.37.18.8:8000/'
 KAKAO_CALLBACK_URI = BASE_URL + 'kakao/login/finish/'
 NAVER_CALLBACK_URI = BASE_URL + 'naver/login/finish/'
 import logging
