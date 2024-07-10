@@ -5,7 +5,7 @@ from django.urls import path
 
 urlpatterns = [
     path('bodypart/',views.BodyPartListAPIView.as_view(),name = 'bodypart-list'),
-    path('bodypart/<int:bodypart_id>',views.BodyPartRetrieveAPIView.as_view(),name = 'bodypart-retrieve'),
+    path('bodypart/<int:bodypart_id>',views.delete_bodypart,name = 'bodypart-delete'),
     path('videolike/',views.VideoLikeListAPIView.as_view(),name = 'videolike-list'),
     path('video_id/<int:video_id>/',views.VideoLikeRetrieveAPIView.as_view(),name = 'videolike-retrieve'),
     path('email/send/',views.send_email,name = "email-retrieve"),
