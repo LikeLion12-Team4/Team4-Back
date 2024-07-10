@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from rest_framework import generics
 from locations.models import Hospital
 from locations.serializers import HospitalSerializer
