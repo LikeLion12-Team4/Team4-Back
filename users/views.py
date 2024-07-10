@@ -31,8 +31,8 @@ class BodyPartListAPIView(ListCreateAPIView): # 아픈부위 생성, 아픈 부�
     lookup_field = 'id'
     permission_class = [IsAdminUser]
 
-@api_view(['POST']) 
-def delete_bodypart(bodypart_id): # 아픈부위 삭제
+@api_view(['DELETE']) 
+def delete_bodypart(request,bodypart_id): # 아픈부위 삭제
     try:
         bodypart = BodyPart.objects.get(id=bodypart_id)
     except BodyPart.DoesNotExist:
