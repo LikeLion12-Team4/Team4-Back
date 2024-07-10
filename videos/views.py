@@ -77,7 +77,7 @@ def open_webcam(request):
     cap = cv2.VideoCapture(0)
 
     if not cap.isOpened():
-        return
+        return Response({"error":"웹캠 오류"},status=status.HTTP_503_SERVICE_UNAVAILABLE)
     while True:
         # 프레임 읽기
         ret, frame = cap.read()
