@@ -280,9 +280,8 @@ def send_email(request):
     from_email = "likelion12@naver.com"
     recipient_list = [request.data.get('email')]
 
-    if Email.objects.filter(email = recipient_list[0]).count() >0:
-        email = Email.objects.get(email = recipient_list[0])
-        email.delete()
+    email = Email.objects.filter(email = recipient_list[0])
+    email.delete()
 
     email = Email.objects.create(verify_num = random_num,email=recipient_list[0])
     email.save()
