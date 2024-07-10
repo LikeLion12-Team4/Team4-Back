@@ -40,6 +40,7 @@ def delete_bodypart(request,bodypart_id): # 아픈부위 삭제
         return Response(status=status.HTTP_404_NOT_FOUND)
     bodypart.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
+
 # ==========================================================================================
 #                                       User View
 # ==========================================================================================
@@ -360,3 +361,278 @@ class VideoLikeRetrieveAPIView(RetrieveUpdateDestroyAPIView,CreateAPIView):
         videolike.save()
         serializer = self.get_serializer(videolike)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+# ==========================================================================================
+#                                       Kakao
+# ========================================================================================== 
+from django.conf import settings
+from rest_framework.decorators import permission_classes, authentication_classes
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework import status
+from django.shortcuts import redirect
+import os
+import sys
+import urllib.request
+
+from .models import User
+from .serializers import UserSerializer
+
+import requests
+
+BASE_URL = 'http://127.0.0.1:8000/'
+KAKAO_CALLBACK_URI = BASE_URL + 'kakao/login/finish/'
+NAVER_CALLBACK_URI = BASE_URL + 'naver/login/finish/'
+import logging
+state=getattr(settings,'STATE')
+KAKAO_REST_API_KEY= getattr(settings, 'KAKAO_REST_API_KEY')
+KAKAO_SECRET_KEY=getattr(settings, 'KAKAO_SECRET_KEY')
+NAVER_REST_API_KEY= getattr(settings, 'SOCIAL_AUTH_NAVER_CLIENT_ID')
+NAVER_SECRET_KEY=getattr(settings, 'SOCIAL_AUTH_NAVER_SECRET')
+def kakao_login(request):
+    return redirect(
+        f"https://kauth.kakao.com/oauth/authorize?client_id={KAKAO_REST_API_KEY}&redirect_uri={KAKAO_CALLBACK_URI}&response_type=code"
+    )
+
+class KakaoLoginView(APIView):
+    def post(self, request, *args, **kwargs):
+        code = request.data.get("code")
+        if not code:
+            return Response(
+                {"error": "Code is required"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # 카카오 인가코드를 사용해 access_token 획득
+        token_res = requests.get(
+            f"https://kauth.kakao.com/oauth/token?grant_type=authorization_code&client_id={KAKAO_REST_API_KEY}&client_secret={KAKAO_SECRET_KEY}&redirect_uri={KAKAO_CALLBACK_URI}&code={code}"
+        )
+        logging.fatal(token_res)
+
+        if token_res.status_code != 200:
+            return Response(
+                {"error": "Failed to obtain access token"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        token_json = token_res.json()
+        access_token = token_json.get("access_token")
+
+        # 카카오 access_token으로부터 사용자 정보 획득
+        headers = {"Authorization": f"Bearer {access_token}"}
+        profile_res = requests.get("https://kapi.kakao.com/v2/user/me", headers=headers)
+
+        if profile_res.status_code != 200:
+            return Response(
+                {"error": "Failed to obtain user information"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        profile_json = profile_res.json()
+
+        username = profile_json.get("id")
+        fullname = profile_json.get("properties")["nickname"]
+        email = profile_json.get("kakao_account")["email"]
+
+        user, created = User.objects.get_or_create(
+            email=email,
+            defaults={
+                "username": f"{username}",
+                "fullname": f"{fullname}",
+            },
+        )
+
+        # 사용자에 대한 토큰 생성
+        refresh = RefreshToken.for_user(user)
+        data = {
+            "access_token": str(refresh.access_token),
+            "refresh_token": str(refresh),
+            "user_info": {
+                "username": user.username,
+                "email": user.email,
+                "fullname": user.fullname,
+                "is_created": created,
+            },
+        }
+
+        return Response(data, status=status.HTTP_200_OK)
+    def get(self, request, *args, **kwargs):
+        code = request.query_params.get("code")
+        if not code:
+            return Response(
+                {"error": "Code is required"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # 카카오 인가코드를 사용해 access_token 획득
+        token_res = requests.post(
+            "https://kauth.kakao.com/oauth/token",
+            data={
+                "grant_type": "authorization_code",
+                "client_id": KAKAO_REST_API_KEY,
+                "client_secret": KAKAO_SECRET_KEY,
+                "redirect_uri": KAKAO_CALLBACK_URI,
+                "code": code,
+            },
+        )
+        logging.fatal(token_res)
+
+        if token_res.status_code != 200:
+            return Response(
+                {"error": "Failed to obtain access token"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        token_json = token_res.json()
+        access_token = token_json.get("access_token")
+
+        # 카카오 access_token으로부터 사용자 정보 획득
+        headers = {"Authorization": f"Bearer {access_token}"}
+        profile_res = requests.get("https://kapi.kakao.com/v2/user/me", headers=headers)
+
+        if profile_res.status_code != 200:
+            return Response(
+                {"error": "Failed to obtain user information"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        profile_json = profile_res.json()
+
+        username = str(profile_json.get("id"))
+        fullname = profile_json.get("properties")["nickname"]
+        email = profile_json.get("kakao_account")["email"]
+
+        user, created = User.objects.get_or_create(
+            email=email,
+            defaults={
+                "username": username,
+                "fullname": fullname,
+            },
+        )
+
+        # 사용자에 대한 토큰 생성
+        refresh = RefreshToken.for_user(user)
+        data = {
+            "access_token": str(refresh.access_token),
+            "refresh_token": str(refresh),
+            "user_info": {
+                "username": user.username,
+                "email": user.email,
+                "fullname": user.fullname,
+                "is_created": created,
+            },
+        }
+
+        return Response(data, status=status.HTTP_200_OK)
+
+# ==========================================================================================
+#                                       Naver 
+# ========================================================================================== 
+# 네이버 로그인 창
+def naver_login(request):
+    client_id = getattr(settings, 'SOCIAL_AUTH_NAVER_CLIENT_ID')
+    return redirect(f"https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id={NAVER_REST_API_KEY}&state=STATE_STRING&redirect_uri={NAVER_CALLBACK_URI}")
+
+class NaverLoginView(APIView):
+    def post(self, request, *args, **kwargs):
+        code = request.query_params.get("code")
+        if not code:
+            return Response(
+                {"error": "Code is required"}, status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        token_request = requests.get(f"https://nid.naver.com/oauth2.0/token?grant_type=authorization_code&client_id={NAVER_REST_API_KEY}&client_secret={NAVER_SECRET_KEY}&code={code}&state={state}")
+        token_response_json = token_request.json()
+
+        error = token_response_json.get("error", None)
+        if error is not None:
+            raise Exception(error)
+
+        access_token = token_response_json.get("access_token")
+        print("cc",access_token)
+        #access token으로 네이버 프로필 요청
+        profile_request = requests.post(
+        "https://openapi.naver.com/v1/nid/me",
+        headers={"Authorization": f"Bearer {access_token}"},
+        )
+        profile_json = profile_request.json()
+        print("Dd",profile_json.get("response"))
+    
+        email = profile_json.get("response").get("email")
+        username = profile_json.get("response").get("id")
+        fullname = profile_json.get("response").get("name")
+
+        user, created = User.objects.get_or_create(
+            email= email,
+            defaults={
+                "username": f"{username}",
+                "fullname": f"{fullname}",
+            },
+        )
+
+        # 사용자에 대한 토큰 생성
+        refresh = RefreshToken.for_user(user)
+        data = {
+            "access_token": str(refresh.access_token),
+            "refresh_token": str(refresh),
+            "user_info": {
+                "username": user.username,
+                "email": user.email,
+                "fullname": user.fullname,
+                "is_created": created,
+            },
+        }
+
+        return Response(data, status=status.HTTP_200_OK)
+    def get(self, request, *args, **kwargs):
+        code = request.query_params.get("code")
+        if not code:
+            return Response(
+                {"error": "Code is required"}, status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        token_request = requests.get(f"https://nid.naver.com/oauth2.0/token?grant_type=authorization_code&client_id={NAVER_REST_API_KEY}&client_secret={NAVER_SECRET_KEY}&code={code}&state={state}")
+        token_response_json = token_request.json()
+
+        error = token_response_json.get("error", None)
+        if error is not None:
+            raise Exception(error)
+
+        access_token = token_response_json.get("access_token")
+        print("cc",access_token)
+        #access token으로 네이버 프로필 요청
+        profile_request = requests.post(
+        "https://openapi.naver.com/v1/nid/me",
+        headers={"Authorization": f"Bearer {access_token}"},
+        )
+        profile_json = profile_request.json()
+
+    
+        email = profile_json.get("response").get("email")
+        username = profile_json.get("response").get("id")
+        fullname = profile_json.get("response").get("name")
+
+        user, created = User.objects.get_or_create(
+            email= email,
+            defaults={
+                "username": f"{username}",
+                "fullname": f"{fullname}",
+            },
+        )
+
+        # 사용자에 대한 토큰 생성
+        refresh = RefreshToken.for_user(user)
+        data = {
+            "access_token": str(refresh.access_token),
+            "refresh_token": str(refresh),
+            "user_info": {
+                "username": user.username,
+                "email": user.email,
+                "fullname": user.fullname,
+                "is_created": created,
+            },
+        }
+
+        return Response(data, status=status.HTTP_200_OK)
+

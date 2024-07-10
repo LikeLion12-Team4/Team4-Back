@@ -51,6 +51,13 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+REST_AUTH = {
+    'USE_JWT' : True,
+    "JWT_AUTH_COOKIE": "jwt-auth",
+    'JWT_AUTH_HTTPONLY': True,
+    "REGISTER_SERIALIZER": "users.serializers.UserSerializer",
+    "JWT_AUTH_HTTPONLY": False,
+}
 
 # Application definition
 
@@ -67,15 +74,15 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'rest_framework_simplejwt',
 
-    #'dj_rest_auth',
-    #'dj_rest_auth.registration',
+    'dj_rest_auth',
+    'dj_rest_auth.registration',
 
-    #'allauth',
-    #'allauth.account',
-    #'allauth.socialaccount',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
 
-    #'allauth.socialaccount.providers.kakao',
-    #'allauth.socialaccount.providers.naver',
+    'allauth.socialaccount.providers.kakao',
+    'allauth.socialaccount.providers.naver',
     #app
     'users',
     'videos',
@@ -88,16 +95,16 @@ SITE_ID = 1
 REST_USE_JWT = True
 
 #사용자명과 이메일 받기
-ACCOUNT_USER_MODEL_USERNAME_FIELD = 'username'
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_UNIQUE_EMAIL = True
-ACCOUNT_USERNAME_REQUIRED = True
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None # username 필드 사용 x
+ACCOUNT_EMAIL_REQUIRED = True            # email 필드 사용 o
+ACCOUNT_USERNAME_REQUIRED = False        # username 필드 사용 x
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
 
 from datetime import timedelta
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=1), #토큰 유효시간
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
-    'ROTATE_REFRESH_TOKENS': False,
+    'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
 }
 
@@ -111,7 +118,9 @@ REST_FRAMEWORK = {
     )
 }
 
-
+REST_AUTH_REGISTER_SERIALIZERS = {
+    "REGISTER_SERIALIZER": "users.serializers.UserSerializer"
+} 
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -121,6 +130,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+     'allauth.account.middleware.AccountMiddleware',
 ]
 
 LOGIN_REDIRECT_URL = '/'

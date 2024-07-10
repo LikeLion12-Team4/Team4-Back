@@ -10,6 +10,13 @@ urlpatterns = [
     path('video_id/<int:video_id>/',views.VideoLikeRetrieveAPIView.as_view(),name = 'videolike-retrieve'),
     path('email/send/',views.send_email,name = "email-retrieve"),
     path('email/verify/',views.verify_email,name = "email-retrieve"),
+    #kakao
+    path("kakao/login/",views.kakao_login,name = "kakao-callback"),
+    path("kakao/login/finish/",views.KakaoLoginView.as_view()),
+    #naver
+    path("naver/login/",views.naver_login,name = "kakao-callback"),
+    path("naver/login/finish/",views.NaverLoginView.as_view()),
+
 ]
 router = DefaultRouter()
 router.register(r'users',views.UserViewSet)

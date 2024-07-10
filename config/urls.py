@@ -25,12 +25,8 @@ urlpatterns = [
     path('alarms/',include('alarms.urls')),
     path('',include('users.urls')),
     path('',include('videos.urls')),
-
-    #소셜로그인
-    # path('users/', include('dj_rest_auth.urls')),
-    # path('users/', include('dj_rest_auth.registration.urls')),
-    # path('users/', include('allauth.urls')),
-    # path('api/users/', include('allauth.urls')),
-    # path('api/users/', include('users.urls')),
+    path('', include('dj_rest_auth.registration.urls')),
+    path('', include('dj_rest_auth.urls')),
+    path('', include('allauth.urls')),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
