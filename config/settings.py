@@ -123,6 +123,8 @@ REST_AUTH_REGISTER_SERIALIZERS = {
 } 
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",  # 가능한 최상단에 위치할 것
+    "django.middleware.common.CommonMiddleware", # 대부분 기본 옵션으로 들어가있다.
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -130,8 +132,33 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-     'allauth.account.middleware.AccountMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
+    
 ]
+
+CORS_ALLOW_METHODS = [  # 허용할 옵션
+    "DELETE",
+    "GET",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
+]
+
+CORS_ALLOW_HEADERS = [ # 허용할 헤더
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "dnt",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+]
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOW_ALL_ORIGINS: True
 
 LOGIN_REDIRECT_URL = '/'
 
