@@ -250,7 +250,7 @@ class UserViewSet(viewsets.ModelViewSet):
         
     # id 조건 판단
     def id_valid_input(self,user_input): 
-        pattern = r'^[가-힣a-zA-Z]{2,10}$'
+        pattern = r'^[a-zA-Z0-9]{4,12}$'
         return re.match(pattern, user_input) is None
     
     # 비밀번호 조건 판단
