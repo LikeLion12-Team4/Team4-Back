@@ -70,30 +70,3 @@ class VideoViewSet(viewsets.ModelViewSet): # url만 입력하면 영상 길이, 
         request.user.save()
         videoserializer = VideoSerializer(video)
         return Response(videoserializer.data,status=status.HTTP_200_OK)
-    
-@api_view(['GET'])
-def open_webcam(request):
-    # 웹캠 열기 (기본적으로 첫 번째 웹캠 사용)
-    cap = cv2.VideoCapture(0)
-
-    if not cap.isOpened():
-        return Response({"error":"웹캠 오류"},status=status.HTTP_503_SERVICE_UNAVAILABLE)
-    while True:
-        # 프레임 읽기
-        ret, frame = cap.read()
-        
-        if not ret:
-            break
-
-        flipped_frame = cv2.flip(frame,1)
-        # 프레임을 윈도우에 표시
-        cv2.imshow('Webcam', flipped_frame)
-
-        # ESC 키를 누르면 종료
-        if cv2.waitKey(1) & 0xFF == 27:
-            break
-
-    # 웹캠 및 모든 윈도우 해제
-    cap.release()
-    cv2.destroyAllWindows()
-    return Response(status=status.HTTP_200_OK)
