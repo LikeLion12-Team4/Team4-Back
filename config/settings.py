@@ -13,8 +13,8 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 from pathlib import Path
 import os
 
-HOST_NAME = 'http://127.0.0.1:8000/' # localhost
-# HOST_NAME = 'http://3.37.18.8:8000/' # server host
+# HOST_NAME = 'http://127.0.0.1:8000/' # localhost
+HOST_NAME = 'http://3.37.18.8:8000/' # server host
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -72,13 +72,17 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',
-
+    # drf
     'rest_framework',
     'rest_framework.authtoken',
     'rest_framework_simplejwt',
-    
+    # cors
     'corsheaders',
-
+    # celery
+    "celery",
+    "django_celery_beat",
+    "django_celery_results",
+    # allauth
     'dj_rest_auth',
     'dj_rest_auth.registration',
 
@@ -197,15 +201,15 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-# from config import local_settings
-# DATABASES = local_settings.DATABASES
+from config import local_settings
+DATABASES = local_settings.DATABASES
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -258,13 +262,13 @@ EMAIL_HOST_PASSWORD = get_secret("EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 # Celery Broker redis로 설정
-CELERY_BROKER_URL = 'redis://redis:6379/0'
-CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_BROKER_URL = 'redis://127.0.0.1:6379'
+CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379'
 
 # Celery 스케줄러 설정
 CELERY_BEAT_SCHEDULE = {
     'check-and-send-alarms-every-minute': {
-        'task': 'alarm_app.tasks.check_and_send_alarms',
+        'task': 'alarms.tasks.check_and_send_push_alarms',
         'schedule': 60.0,  # 1분마다 실행
     },
 }
