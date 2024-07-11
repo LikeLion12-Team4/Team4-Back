@@ -55,7 +55,7 @@ class UserViewSet(viewsets.ModelViewSet):
     permission_classes = [AllowAny] 
     
     def get_permissions(self):
-        if self.action == "get_user_info" or self.action == "survey" or self.action == "quit" or self.action == "reset_pwd":
+        if self.action == "get_user_info" or self.action == "survey" or self.action == "quit" or self.action == "reset_pwd" or self.action == "reset_id":
             return [IsAuthenticated()]
         elif self.action == "list" or self.action == "retrieve" or self.action=="destroy":
             return [IsAdminUser()]
@@ -226,6 +226,21 @@ class UserViewSet(viewsets.ModelViewSet):
                 "user":serializer.data,
             }
         )
+    
+    # 아이디 재설정
+    @action(methods=['PUT'],detail = False, url_path='reset_id',url_name='user-findid')
+    def reset_id(self,request):
+        print("!!")
+        username = request.data.get('username')
+        if self.id_valid_input(username):
+            return Response({"error":"아이디는 4~12자의 숫자나 영문만 사용 가능합니다."},status=status.HTTP_401_UNAUTHORIZED)
+        if User.objects.filter(username=username).count()>0:
+            return Response({"error":"이미 존재하는 아이디입니다."},status=status.HTTP_401_UNAUTHORIZED)
+
+        request.user.username = username
+        request.user.save()
+        serializer = self.get_serializer(request.user)
+        return Response(serializer.data,status=status.HTTP_200_OK)
     
     # 비밀번호 재설정 ( 비밀번호 찾기 화면에서 이메일 인증을 했으면 로그인이 되도록 )
     @action(methods=['PUT'],detail = False, url_path='reset_pwd',url_name='user-findpwd')
