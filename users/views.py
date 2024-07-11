@@ -1,6 +1,7 @@
 from users.models import User,BodyPart,VideoLike,Email
 from users.serializers import UserSerializer,BodyPartSerializer,VideoLikeSerializer,EmailSerializer
 from videos.models import Video
+from alarms.models import Option
 
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -20,6 +21,7 @@ from django.core.mail import send_mail
 from random import randint
 import re
 #from users.permissions import IsOwner
+
 # ==========================================================================================
 #                                       BodyPart View 
 # ==========================================================================================
@@ -126,6 +128,10 @@ class UserViewSet(viewsets.ModelViewSet):
         token = RefreshToken.for_user(user)
         serializer = self.get_serializer(user)
         email_model.delete()
+
+        # Option
+        Option.objects.create(owner = user)
+
         return Response(
             status=status.HTTP_201_CREATED,
             data={
