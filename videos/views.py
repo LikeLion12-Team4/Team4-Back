@@ -40,7 +40,11 @@ class VideoViewSet(viewsets.ModelViewSet): # url만 입력하면 영상 길이, 
         bodyname = request.data.get('bodypart')
         thumbnail= self.extract_thumbnail_link(youtubelink)
 
-        bodypart = BodyPart.objects.get(bodyname=bodyname)
+        try:
+            bodypart = BodyPart.objects.get(bodyname=bodyname)
+        except BodyPart.DoesNotExist:
+            return Response({"error":"없는 부위 입니다."},status=status.HTTP_404_NOT_FOUND)
+        
         video = Video.objects.create(title=title,
                                      length = length,
                                      youtubelink=youtubelink,
