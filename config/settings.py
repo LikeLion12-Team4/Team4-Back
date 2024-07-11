@@ -13,6 +13,9 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 from pathlib import Path
 import os
 
+HOST_NAME = 'http://127.0.0.1:8000/' # localhost
+# HOST_NAME = 'http://3.37.18.8:8000/' # server host
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -194,8 +197,15 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-from config import local_settings
-DATABASES = local_settings.DATABASES
+# from config import local_settings
+# DATABASES = local_settings.DATABASES
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -247,3 +257,14 @@ EMAIL_HOST_USER = 'likelion12@naver.com'
 EMAIL_HOST_PASSWORD = get_secret("EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
+# Celery Broker redis로 설정
+CELERY_BROKER_URL = 'redis://redis:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+
+# Celery 스케줄러 설정
+CELERY_BEAT_SCHEDULE = {
+    'check-and-send-alarms-every-minute': {
+        'task': 'alarm_app.tasks.check_and_send_alarms',
+        'schedule': 60.0,  # 1분마다 실행
+    },
+}
