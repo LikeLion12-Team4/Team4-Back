@@ -429,7 +429,7 @@ class KakaoLoginView(APIView):
                 "grant_type": "authorization_code",
                 "client_id": KAKAO_REST_API_KEY,
                 "client_secret": KAKAO_SECRET_KEY,
-                "redirect_uri": KAKAO_CALLBACK_URI,
+                "redirect_uri": KAKA0_LOCAL_URI,
                 "code": code,
             },
         )
