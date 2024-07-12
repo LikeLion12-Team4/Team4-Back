@@ -13,6 +13,7 @@ urlpatterns = [
     #kakao
     path("kakao/login/",views.kakao_login,name = "kakao-callback"),
     path("kakao/login/finish/",views.KakaoLoginView.as_view()),
+    path("kakao/jwt/", views.kakao_jwt_view, name='jwt-view'),
     #naver
     path("naver/login/",views.naver_login,name = "naver-callback"),
     path("naver/login/finish/",views.NaverLoginView.as_view()),

@@ -435,6 +435,7 @@ class KakaoLoginView(APIView):
         )
 
         if token_res.status_code != 200:
+            print(token_res)
             return Response(
                 {"error": "Failed to obtain access token"},
                 status=status.HTTP_400_BAD_REQUEST,
@@ -442,46 +443,49 @@ class KakaoLoginView(APIView):
 
         token_json = token_res.json()
         access_token = token_json.get("access_token")
+    
+@api_view(['POST'])
+def kakao_jwt_view(request):
+    access_token = request.data.get('token')
+    # 카카오 access_token으로부터 사용자 정보 획득
+    headers = {"Authorization": f"Bearer {access_token}"}
+    profile_res = requests.get("https://kapi.kakao.com/v2/user/me", headers=headers)
 
-        # 카카오 access_token으로부터 사용자 정보 획득
-        headers = {"Authorization": f"Bearer {access_token}"}
-        profile_res = requests.get("https://kapi.kakao.com/v2/user/me", headers=headers)
-
-        if profile_res.status_code != 200:
-            return Response(
-                {"error": "Failed to obtain user information"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        profile_json = profile_res.json()
-
-        username = profile_json.get("id")
-        fullname = profile_json.get("properties")["nickname"]
-        email = profile_json.get("kakao_account")["email"]
-
-        user, created = User.objects.get_or_create(
-            email=email,
-            defaults={
-                "username": f"{username}",
-                "fullname": f"{fullname}",
-            },
+    if profile_res.status_code != 200:
+        print(profile_res)
+        return Response(
+            {"error": "Failed to obtain user information"},
+            status=status.HTTP_400_BAD_REQUEST,
         )
 
-        # 사용자에 대한 토큰 생성
-        refresh = RefreshToken.for_user(user)
-        data = {
-            "access_token": str(refresh.access_token),
-            "refresh_token": str(refresh),
-            "user_info": {
-                "username": user.username,
-                "email": user.email,
-                "fullname": user.fullname,
-                "is_created": created,
-            },
-        }
+    profile_json = profile_res.json()
 
-        return Response(data, status=status.HTTP_200_OK)
+    username = profile_json.get("id")
+    fullname = profile_json.get("properties")["nickname"]
+    email = profile_json.get("kakao_account")["email"]
 
+    user, created = User.objects.get_or_create(
+        email=email,
+        defaults={
+            "username": f"{username}",
+            "fullname": f"{fullname}",
+        },
+    )
+
+    # 사용자에 대한 토큰 생성
+    refresh = RefreshToken.for_user(user)
+    data = {
+        "access_token": str(refresh.access_token),
+        "refresh_token": str(refresh),
+        "user_info": {
+            "username": user.username,
+            "email": user.email,
+            "fullname": user.fullname,
+            "is_created": created,
+        },
+    }
+
+    return Response(data, status=status.HTTP_200_OK)
 # ==========================================================================================
 #                                       Naver 
 # ========================================================================================== 
