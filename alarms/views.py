@@ -14,22 +14,18 @@ class OptionView(generics.RetrieveUpdateAPIView):
     permission_classes=[IsAuthenticated]
     serializer_class=OptionSerializer
     
-    def get_object(self,request):
-        user = request.user
+    def get_object(self):
+        user = self.request.user
         option = Option.objects.get(owner=user)
         return option
-
-    def put(self, request, *args, **kwargs):
-        return self.patch(self, request, *args, **kwargs)    
-
-    # def put(self, request, *args, **kwargs):
-    #     return self.patch
-        # interval = request.data.get('interval')
-        # is_alarm = request.data.get('is_alarm')
-        # try:
-        #     option = Option.objects.get(interval = interval, is_alarm = is_alarm)
-        # except Option.DoesNotExist:
-        #     return Response({"error":"옵션이"})
+    
+    def update(self, request):
+        partial = True
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
 
 #content 생성 뷰(이미지 업로드)
 #관리자만
