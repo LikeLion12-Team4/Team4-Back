@@ -443,10 +443,11 @@ class KakaoLoginView(APIView):
 
         token_json = token_res.json()
         access_token = token_json.get("access_token")
+        return Response({'access_token':access_token}, status=status.HTTP_200_OK)
     
 @api_view(['POST'])
 def kakao_jwt_view(request):
-    access_token = request.data.get('token')
+    access_token = request.data.get('access_token')
     # 카카오 access_token으로부터 사용자 정보 획득
     headers = {"Authorization": f"Bearer {access_token}"}
     profile_res = requests.get("https://kapi.kakao.com/v2/user/me", headers=headers)
