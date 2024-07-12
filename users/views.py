@@ -401,7 +401,7 @@ BASE_URL = 'http://3.37.18.8:8000/'
 LOCAL_BASE_URL='http://127.0.0.1:8000/'
 KAKAO_CALLBACK_URI = BASE_URL + 'kakao/login/finish/'
 NAVER_CALLBACK_URI = BASE_URL + 'naver/login/finish/'
-KAKA0_LOCAL_URI=LOCAL_BASE_URL+'html/pages/social-sign-up.html'
+KAKA0_LOCAL_URI=LOCAL_BASE_URL+'html/pages/kakao-empty.html'
 import logging
 state=getattr(settings,'STATE')
 KAKAO_REST_API_KEY= getattr(settings, 'KAKAO_REST_API_KEY')
