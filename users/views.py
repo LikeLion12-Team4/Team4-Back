@@ -398,9 +398,10 @@ from .serializers import UserSerializer
 import requests
 
 BASE_URL = 'http://3.37.18.8:8000/'
+LOCAL_BASE_URL='http://127.0.0.1:8000/'
 KAKAO_CALLBACK_URI = BASE_URL + 'kakao/login/finish/'
 NAVER_CALLBACK_URI = BASE_URL + 'naver/login/finish/'
-KAKA0_LOCAL_URI='http://127.0.0.1:8000/html/pages/social-sign-up.html'
+KAKA0_LOCAL_URI=LOCAL_BASE_URL+'html/pages/social-sign-up.html'
 import logging
 state=getattr(settings,'STATE')
 KAKAO_REST_API_KEY= getattr(settings, 'KAKAO_REST_API_KEY')
@@ -422,10 +423,16 @@ class KakaoLoginView(APIView):
             )
 
         # 카카오 인가코드를 사용해 access_token 획득
-        token_res = requests.get(
-            f"https://kauth.kakao.com/oauth/token?grant_type=authorization_code&client_id={KAKAO_REST_API_KEY}&client_secret={KAKAO_SECRET_KEY}&redirect_uri={KAKAO_CALLBACK_URI}&code={code}"
+        token_res = requests.post(
+            "https://kauth.kakao.com/oauth/token",
+            data={
+                "grant_type": "authorization_code",
+                "client_id": KAKAO_REST_API_KEY,
+                "client_secret": KAKAO_SECRET_KEY,
+                "redirect_uri": KAKAO_CALLBACK_URI,
+                "code": code,
+            },
         )
-        logging.fatal(token_res)
 
         if token_res.status_code != 200:
             return Response(
@@ -457,73 +464,6 @@ class KakaoLoginView(APIView):
             defaults={
                 "username": f"{username}",
                 "fullname": f"{fullname}",
-            },
-        )
-
-        # 사용자에 대한 토큰 생성
-        refresh = RefreshToken.for_user(user)
-        data = {
-            "access_token": str(refresh.access_token),
-            "refresh_token": str(refresh),
-            "user_info": {
-                "username": user.username,
-                "email": user.email,
-                "fullname": user.fullname,
-                "is_created": created,
-            },
-        }
-
-        return Response(data, status=status.HTTP_200_OK)
-    def get(self, request, *args, **kwargs):
-        code = request.query_params.get("code")
-        if not code:
-            return Response(
-                {"error": "Code is required"}, status=status.HTTP_400_BAD_REQUEST
-            )
-
-        # 카카오 인가코드를 사용해 access_token 획득
-        token_res = requests.post(
-            "https://kauth.kakao.com/oauth/token",
-            data={
-                "grant_type": "authorization_code",
-                "client_id": KAKAO_REST_API_KEY,
-                "client_secret": KAKAO_SECRET_KEY,
-                "redirect_uri": KAKAO_CALLBACK_URI,
-                "code": code,
-            },
-        )
-        logging.fatal(token_res)
-
-        if token_res.status_code != 200:
-            return Response(
-                {"error": "Failed to obtain access token"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        token_json = token_res.json()
-        access_token = token_json.get("access_token")
-
-        # 카카오 access_token으로부터 사용자 정보 획득
-        headers = {"Authorization": f"Bearer {access_token}"}
-        profile_res = requests.get("https://kapi.kakao.com/v2/user/me", headers=headers)
-
-        if profile_res.status_code != 200:
-            return Response(
-                {"error": "Failed to obtain user information"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        profile_json = profile_res.json()
-
-        username = str(profile_json.get("id"))
-        fullname = profile_json.get("properties")["nickname"]
-        email = profile_json.get("kakao_account")["email"]
-
-        user, created = User.objects.get_or_create(
-            email=email,
-            defaults={
-                "username": username,
-                "fullname": fullname,
             },
         )
 
@@ -651,4 +591,3 @@ class NaverLoginView(APIView):
         }
 
         return Response(data, status=status.HTTP_200_OK)
-
