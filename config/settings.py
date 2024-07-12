@@ -274,3 +274,5 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': 60.0,  # 1분마다 실행
     },
 }
+
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
