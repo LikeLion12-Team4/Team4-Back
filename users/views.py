@@ -479,9 +479,9 @@ def kakao_jwt_view(request):
         "access_token": str(refresh.access_token),
         "refresh_token": str(refresh),
         "user_info": {
-            "username": user.fullname,
+            "username": user.username,
             "email": user.email,
-            "fullname": user.username,
+            "fullname": user.fullname,
             "is_created": created,
         },
     }
