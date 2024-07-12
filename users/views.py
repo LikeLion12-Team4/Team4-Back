@@ -406,6 +406,7 @@ import requests
 BASE_URL = 'http://3.37.18.8:8000/'
 KAKAO_CALLBACK_URI = BASE_URL + 'kakao/login/finish/'
 NAVER_CALLBACK_URI = BASE_URL + 'naver/login/finish/'
+KAKA0_LOCAL_URI='http://127.0.0.1:8000/html/pages/social-sign-up.html'
 import logging
 state=getattr(settings,'STATE')
 KAKAO_REST_API_KEY= getattr(settings, 'KAKAO_REST_API_KEY')
@@ -414,7 +415,7 @@ NAVER_REST_API_KEY= getattr(settings, 'SOCIAL_AUTH_NAVER_CLIENT_ID')
 NAVER_SECRET_KEY=getattr(settings, 'SOCIAL_AUTH_NAVER_SECRET')
 def kakao_login(request):
     return redirect(
-        f"https://kauth.kakao.com/oauth/authorize?client_id={KAKAO_REST_API_KEY}&redirect_uri={KAKAO_CALLBACK_URI}&response_type=code"
+        f"https://kauth.kakao.com/oauth/authorize?client_id={KAKAO_REST_API_KEY}&redirect_uri={KAKA0_LOCAL_URI}&response_type=code"
     )
 
 class KakaoLoginView(APIView):
