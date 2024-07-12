@@ -109,9 +109,6 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response({"error":"이미 존재하는 아이디입니다."},status=status.HTTP_401_UNAUTHORIZED)
         if User.objects.filter(email=email).count()>0:
             return Response({"error":"이미 존재하는 이메일입니다."},status=status.HTTP_401_UNAUTHORIZED)
-        for check_user in User.objects.all():
-            if check_password(password,check_user.password):
-                return Response({"error":"이미 존재하는 비밀번호입니다."},status=status.HTTP_401_UNAUTHORIZED)
         
         try: # 이전에 이메일 인증을 하고 와야함
             email_model = Email.objects.get(email=email)
@@ -252,10 +249,7 @@ class UserViewSet(viewsets.ModelViewSet):
         password = request.data.get('password')
         if self.pwd_valid_input(password):
             return Response({"error":"비밀번호는 8~15자의 영문, 숫자, 특수문자 2가지 이상 조합으로 사용 가능합니다."},status=status.HTTP_401_UNAUTHORIZED)
-        
-        for check_user in User.objects.all(): 
-            if check_password(password,check_user.password):
-                return Response({"error":"이미 존재하는 비밀번호입니다."},status=status.HTTP_401_UNAUTHORIZED)
+            
         re_password = request.data.get('re_password')
         if password != re_password:
             return Response({"error":"비밀번호가 다릅니다."},status=status.HTTP_406_NOT_ACCEPTABLE)
@@ -412,6 +406,7 @@ KAKAO_REST_API_KEY= getattr(settings, 'KAKAO_REST_API_KEY')
 KAKAO_SECRET_KEY=getattr(settings, 'KAKAO_SECRET_KEY')
 NAVER_REST_API_KEY= getattr(settings, 'SOCIAL_AUTH_NAVER_CLIENT_ID')
 NAVER_SECRET_KEY=getattr(settings, 'SOCIAL_AUTH_NAVER_SECRET')
+
 def kakao_login(request):
     return redirect(
         f"https://kauth.kakao.com/oauth/authorize?client_id={KAKAO_REST_API_KEY}&redirect_uri={KAKAO_CALLBACK_URI}&response_type=code"
