@@ -66,7 +66,11 @@ class UserViewSet(viewsets.ModelViewSet):
     def login(self,request): 
         username = request.data.get('username')
         password = request.data.get('password')
-        user = User.objects.get(username = username) 
+        try:
+            user = User.objects.get(username = username)
+        except User.DoesNotExist:
+            return Response({"error":"계정이 없습니다."},status=status.HTTP_404_NOT_FOUND)
+        
         if not check_password(password,user.password): 
             return Response({"error":"wrong information"},status=status.HTTP_401_UNAUTHORIZED)
         
