@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 from pathlib import Path
 import os
 
-#OST_NAME = 'http://127.0.0.1:8000/' # localhost
+#HOST_NAME = 'http://127.0.0.1:8000/' # localhost
 HOST_NAME = 'http://3.37.90.114:8000/' # server host
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -97,6 +97,7 @@ INSTALLED_APPS = [
     'videos',
     'alarms',
     'locations',
+    'forums',
 ]
 #site_id 부여
 SITE_ID = 1
