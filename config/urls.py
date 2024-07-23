@@ -25,6 +25,7 @@ urlpatterns = [
     path('alarms/',include('alarms.urls')),
     path('',include('users.urls')),
     path('',include('videos.urls')),
+    path('',include('forums.urls')),
     path('', include('dj_rest_auth.registration.urls')),
     path('', include('dj_rest_auth.urls')),
     path('', include('allauth.urls')),
