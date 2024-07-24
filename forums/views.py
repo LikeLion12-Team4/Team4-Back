@@ -135,7 +135,7 @@ class CommentCreateRetrieveView(CreateAPIView,RetrieveAPIView):
         try:
             post = Post.objects.get(id = self.kwargs['post_id'])
         except Post.DoesNotExist:
-            return Response({"error":"존재하지 않는 게시판입니다 !"},status=status.HTTP_404_NOT_FOUND)
+            return Response({"error":"존재하지 않는 게시글입니다 !"},status=status.HTTP_404_NOT_FOUND)
         
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
