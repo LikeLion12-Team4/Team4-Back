@@ -66,6 +66,9 @@ class PostUpdateDestroyAPIView(UpdateAPIView,DestroyAPIView):
             post = Post.objects.get(id = self.kwargs['post_id'], user= request.user)
         except Post.DoesNotExist:
             return Response({"error":"본인의 게시글이 아니거나 없어진 게시글입니다!"},status=status.HTTP_401_UNAUTHORIZED)
+        num = request.data.get('num')
+        if num!=post.num:
+            return Response({"error":"비밀번호가 틀립니다!"},status=status.HTTP_401_UNAUTHORIZED)
         return super().update(request, *args, **kwargs)
     
     def destroy(self, request, *args, **kwargs):
