@@ -17,7 +17,7 @@ urlpatterns = [
     #naver
     path("naver/login/",views.naver_login,name = "naver-callback"),
     path("naver/login/finish/",views.NaverLoginView.as_view()),
-
+    path('postdata/',views.PoseDataView.as_view(),name='posedata'),
 ]
 router = DefaultRouter()
 router.register(r'users',views.UserViewSet)

@@ -1,8 +1,8 @@
-from users.models import User,BodyPart,VideoLike,Email
-from users.serializers import UserSerializer,BodyPartSerializer,VideoLikeSerializer,EmailSerializer
+from users.models import User,BodyPart,VideoLike,Email,PoseData
+from users.serializers import UserSerializer,BodyPartSerializer,VideoLikeSerializer,EmailSerializer,PostDataSerializer
 from videos.models import Video
 from alarms.models import Option
-
+from rest_framework import generics
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework import status
@@ -132,7 +132,9 @@ class UserViewSet(viewsets.ModelViewSet):
 
         # Option
         Option.objects.create(owner = user)
-
+        # PoseData
+        PoseData.objects.create(owner=user)
+        
         return Response(
             status=status.HTTP_201_CREATED,
             data={
@@ -596,3 +598,25 @@ class NaverLoginView(APIView):
         }
 
         return Response(data, status=status.HTTP_200_OK)
+    
+# ==========================================================================================
+#                                         AI자세코치 
+# ========================================================================================== 
+#사용자 자세 데이터 만들기, 조회하기 -> 알람옵션처럼 회원가입때 생성시켜버리고 수정만 하기 
+class PoseDataView(generics.RetrieveUpdateAPIView):
+    queryset=Option.objects.all()
+    # permission_classes=[IsAuthenticated]
+    serializer_class=PostDataSerializer
+    
+    def get_object(self):
+        user = self.request.user
+        option = PoseData.objects.get(owner=user)
+        return option
+    
+    def update(self, request):
+        partial = True
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
