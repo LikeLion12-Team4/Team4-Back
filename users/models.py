@@ -19,7 +19,7 @@ class Email(models.Model):
 
 class PoseData(models.Model):
     owner = models.OneToOneField(User,on_delete=models.CASCADE,related_name='pose_datas',null=True)
-    distance=models.FloatField(max_value=None,null=True)
-    right_num=models.IntegerField(max_value=None,null=True)
-    left_num=models.IntegerField(max_value=None,null=True)
-    turtle_num=models.IntegerField(max_value=None,null=True)
+    distance=models.FloatField(null=True)
+    right_num=models.IntegerField(null=True)
+    left_num=models.IntegerField(null=True)
+    turtle_num=models.IntegerField(null=True)
