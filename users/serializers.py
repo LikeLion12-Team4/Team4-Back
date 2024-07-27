@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from users.models import User,VideoLike,Email
+from users.models import User,VideoLike,Email,PoseData
 from videos.serializers import VideoSerializer,BodyPartSerializer
 
 class UserSerializer(serializers.ModelSerializer): 
@@ -30,5 +30,11 @@ class EmailSerializer(serializers.ModelSerializer):
         model = Email
         fields = ['id','verify_num','email','is_verified']
 
-    
+
+class PostDataSerializer(serializers.ModelSerializer):
+    ower=UserSerializer(required=False)
+    class Meta:
+        model=PoseData
+        fields='__all__'
+
 
