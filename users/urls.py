@@ -13,10 +13,12 @@ urlpatterns = [
     #kakao
     path("kakao/login/",views.kakao_login,name = "kakao-callback"),
     path("kakao/login/finish/",views.KakaoLoginView.as_view()),
-    path("kakao/jwt/", views.kakao_jwt_view, name='jwt-view'),
+    path("kakao/jwt/", views.kakao_jwt_view, name='kakao-jwt-view'),
     #naver
     path("naver/login/",views.naver_login,name = "naver-callback"),
     path("naver/login/finish/",views.NaverLoginView.as_view()),
+    path("naver/jwt/", views.naver_jwt_view, name='naver-jwt-view'),
+
     path('postdata/',views.PoseDataView.as_view(),name='posedata'),
 ]
 router = DefaultRouter()
