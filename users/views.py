@@ -399,14 +399,18 @@ from .serializers import UserSerializer
 import requests
 
 BASE_URL = 'http://3.37.90.114:8000/'
+# BASE_URL = 'http://127.0.0.1:8000/'
+
 LOCAL_BASE_URL='http://127.0.0.1:8000/'
+# LOCAL_BASE_URL='http://127.0.0.1:8080/'
 KAKAO_CALLBACK_URI = BASE_URL + 'kakao/login/finish/'
 NAVER_CALLBACK_URI = BASE_URL + 'naver/login/finish/'
 
 KAKA0_LOCAL_URI=LOCAL_BASE_URL+'html/pages/kakao-empty.html'
 NAVER_LOCAL_URI=LOCAL_BASE_URL+'html/pages/naver-empty.html'
 import logging
-state=getattr(settings,'STATE')
+state=getattr(settings,'STATE'
+              )
 KAKAO_REST_API_KEY= getattr(settings, 'KAKAO_REST_API_KEY')
 KAKAO_SECRET_KEY=getattr(settings, 'KAKAO_SECRET_KEY')
 NAVER_REST_API_KEY= getattr(settings, 'SOCIAL_AUTH_NAVER_CLIENT_ID')
@@ -495,19 +499,29 @@ def kakao_jwt_view(request):
 # ========================================================================================== 
 # 네이버 로그인 창
 def naver_login(request):
-    client_id = getattr(settings, 'SOCIAL_AUTH_NAVER_CLIENT_ID')
     return redirect(f"https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id={NAVER_REST_API_KEY}&state=STATE_STRING&redirect_uri={NAVER_LOCAL_URI}")
 
 class NaverLoginView(APIView):
     def post(self, request, *args, **kwargs):
-        code = request.query_params.get("code")
+        code = request.data.get("code")
         if not code:
             return Response(
                 {"error": "Code is required"}, status=status.HTTP_400_BAD_REQUEST
             )
-        
-        token_res = requests.get(f"https://nid.naver.com/oauth2.0/token?grant_type=authorization_code&client_id={NAVER_REST_API_KEY}&client_secret={NAVER_SECRET_KEY}&code={code}&state={state}")
 
+        
+        # token_res = requests.post(f"https://nid.naver.com/oauth2.0/token?grant_type=authorization_code&client_id={NAVER_REST_API_KEY}&client_secret={NAVER_SECRET_KEY}&code={code}&state={state}")
+        # token_res = requests.get(f"https://nid.naver.com/oauth2.0/token?grant_type=authorization_code&client_id={NAVER_REST_API_KEY}&client_secret={NAVER_SECRET_KEY}&code={code}&state={state}")
+        token_res = requests.post(
+            "https://nid.naver.com/oauth2.0/token",
+            data={
+                "grant_type": "authorization_code",
+                "client_id": NAVER_REST_API_KEY,
+                "client_secret": NAVER_SECRET_KEY,
+                "code": code,
+                "state":state,
+            },
+        )
         if token_res.status_code != 200:
             print(token_res)
             return Response(
@@ -567,14 +581,14 @@ def naver_jwt_view(request):
 # ========================================================================================== 
 #사용자 자세 데이터 만들기, 조회하기 -> 알람옵션처럼 회원가입때 생성시켜버리고 수정만 하기 
 class PoseDataView(generics.RetrieveUpdateAPIView):
-    queryset=Option.objects.all()
+    queryset=PoseData.objects.all()
     # permission_classes=[IsAuthenticated]
     serializer_class=PostDataSerializer
     
     def get_object(self):
         user = self.request.user
-        option = PoseData.objects.get(owner=user)
-        return option
+        posedata = PoseData.objects.get(owner=user)
+        return posedata
     
     def update(self, request):
         partial = True
