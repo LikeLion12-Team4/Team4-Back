@@ -19,7 +19,7 @@ urlpatterns = [
     path("naver/login/finish/",views.NaverLoginView.as_view()),
     path("naver/jwt/", views.naver_jwt_view, name='naver-jwt-view'),
 
-    path('postdata/',views.PoseDataView.as_view(),name='posedata'),
+    path('posedata/',views.PoseDataView.as_view(),name='posedata'),
 ]
 router = DefaultRouter()
 router.register(r'users',views.UserViewSet)
