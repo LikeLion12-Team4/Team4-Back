@@ -537,7 +537,7 @@ class NaverLoginView(APIView):
 @api_view(['POST'])
 def naver_jwt_view(request):
     access_token = request.data.get('access_token')
-    # 카카오 access_token으로부터 사용자 정보 획득
+    headers = {"Authorization": f"Bearer {access_token}"}
     headers = {"Authorization": f"Bearer {access_token}"}
     profile_res = requests.get("https://openapi.naver.com/v1/nid/me", headers=headers)
 
@@ -550,9 +550,10 @@ def naver_jwt_view(request):
 
     profile_json = profile_res.json()
 
-    username = profile_json.get("id")
-    fullname = profile_json.get("properties")["nickname"]
-    email = profile_json.get("kakao_account")["email"]
+    res=profile_json.get('response', {})
+    username = res.get("id")
+    fullname = res.get("name")
+    email = res.get("email")
 
     user, created = User.objects.get_or_create(
         email=email,
