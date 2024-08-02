@@ -6,8 +6,10 @@ from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.permissions import IsAuthenticated,IsAdminUser
 
 from alarms.serializers import AlarmContentSerializer
-from alarms.models import Option
+from alarms.models import Option,AlarmContent
 from alarms.serializers import OptionSerializer
+from videos.models import BodyPart
+from django.shortcuts import render
 
 class OptionView(generics.RetrieveUpdateAPIView):
     queryset=Option.objects.all()
@@ -19,6 +21,7 @@ class OptionView(generics.RetrieveUpdateAPIView):
         option = Option.objects.get(owner=user)
         return option
     
+    # fcm token을 갱신 해야함
     def update(self, request):
         partial = True
         instance = self.get_object()
@@ -26,6 +29,7 @@ class OptionView(generics.RetrieveUpdateAPIView):
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
         return Response(serializer.data)
+
 
 #content 생성 뷰(이미지 업로드)
 #관리자만
@@ -35,8 +39,18 @@ class AlarmContentView(views.APIView):
     serializer_class = AlarmContentSerializer
 
     def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data,status=status.HTTP_201_CREATED)
-        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST )
+        bodyname = request.data.get('bodypart') 
+        content = request.data.get('content')
+        image = request.data.get('image')
+        try:
+            for bp in BodyPart.objects.all(): # bodypart 객체에 user 추가
+                if bp.bodyname == bodyname:
+                    bodypart = bp
+                    break
+        except BodyPart.DoesNotExist:
+            return Response({"error":"부위가 존재하지 않습니다."},status=status.HTTP_404_NOT_FOUND)
+        
+        alarmcontent = AlarmContent.objects.create(bodypart=bodypart,content=content,image=image)
+        alarmcontent.save()
+        serializer = self.serializer_class(alarmcontent)
+        return Response(serializer.data,status=status.HTTP_201_CREATED)
