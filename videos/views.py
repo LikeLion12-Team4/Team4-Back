@@ -1,5 +1,7 @@
+from rest_framework import generics
 from users.models import BodyPart,Video
-from videos.serializers import VideoSerializer
+from videos.models import Chatbot
+from videos.serializers import VideoSerializer,ChatbotSerializer
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework import status
@@ -70,3 +72,10 @@ class VideoViewSet(viewsets.ModelViewSet): # url만 입력하면 영상 길이, 
         request.user.save()
         videoserializer = VideoSerializer(video)
         return Response(videoserializer.data,status=status.HTTP_200_OK)
+    
+class ChatbotView(generics.ListAPIView):
+    permission_classes=[IsAuthenticated]
+    queryset = Chatbot.objects.all()
+    serializer_class = ChatbotSerializer
+
+    
