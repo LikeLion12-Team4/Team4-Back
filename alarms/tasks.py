@@ -40,16 +40,13 @@ def send_push_alarm(option):
     chosen_content = AlarmContent.objects.filter(bodypart=chosen_bodypart).order_by("?").first()
     chosen_video = Video.objects.filter(bodypart=chosen_bodypart).order_by("?").first()
     
-    fcm_token = "f98MA9mSf8g6uNTmGrWabF:APA91bG0JOHF9cwaWIzkAWoJLpvWUg_Ja6C2CpAHZUdhHdcHQyVQ-N7Y8r9pmFu8Wn-OGHLOjhq6kwJUbYYw6-WJo7SVzhkgmrUUvY9m-iQK0Pn4U7HHbvhEecWjrs3SGurmuKhI345Z"
-
+    #fcm_token = "djRV1vbQuHOwmz9RdWgzRx:APA91bHZlFoY4UgxH6VlpySf9VFdQkMlbLRpk0OWdkmIr5h93js0Ln09Md3O8D1DXO2z9cPyit0segI8Mg7NNyS7JbL0wKXjYBukaFwlOEVGCYjaRu8RI07cMIVLssRSdMgte0Nk1yPC"
+    fcm_token = option.fcm_token
     if fcm_token is None:
         print('No fcm token')
         return
     
     message = messaging.Message(
-        # notification = messaging.Notification(
-        #     image='http://127.0.0.1:5500/test.html/' + chosen_content.image.url
-        # ),
         data = {
             "video_title": chosen_video.title,
             "thumbnail": chosen_video.thumbnail,
@@ -58,11 +55,6 @@ def send_push_alarm(option):
             "content_image": chosen_content.image.url,
             "badge": 'media/pushes/304.png'
         },
-        # webpush=messaging.WebpushConfig(
-        #     notification=messaging.WebpushNotification(
-        #         icon=HOST_NAME + chosen_content.image.url
-        #     ),
-        # ),
         token=fcm_token
     )
     # 푸시 알림 메시지 전송
