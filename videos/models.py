@@ -11,3 +11,5 @@ class Video(models.Model):
     thumbnail = models.CharField(max_length=100,null=True)
     bodypart = models.ForeignKey(BodyPart,on_delete=models.SET_NULL,related_name="video",null=True)
 
+class Chatbot(models.Model):
+    value=models.CharField(null=True)

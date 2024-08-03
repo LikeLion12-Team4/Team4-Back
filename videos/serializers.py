@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from videos.models import Video,BodyPart
+from videos.models import Video,BodyPart,Chatbot
 
 class BodyPartSerializer(serializers.ModelSerializer): 
     class Meta:
@@ -17,3 +17,8 @@ class VideoSerializer(serializers.ModelSerializer):
     def get_videolikes_num(self,obj): # 동영상의 좋아요 개수 반환
         from users.models import VideoLike
         return VideoLike.objects.filter(video=obj).count()
+    
+class ChatbotSerializer(serializers.ModelSerializer): 
+    class Meta:
+        model = Chatbot
+        fields = '__all__'
