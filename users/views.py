@@ -398,13 +398,8 @@ from .serializers import UserSerializer
 
 import requests
 
-BASE_URL = 'http://3.37.90.114:8000/'
-# BASE_URL = 'http://127.0.0.1:8000/'
 
-LOCAL_BASE_URL='http://127.0.0.1:8000/'
-# LOCAL_BASE_URL='http://127.0.0.1:8080/'
-KAKAO_CALLBACK_URI = BASE_URL + 'kakao/login/finish/'
-NAVER_CALLBACK_URI = BASE_URL + 'naver/login/finish/'
+LOCAL_BASE_URL='http://stand-up.store/'
 
 KAKA0_LOCAL_URI=LOCAL_BASE_URL+'html/pages/kakao-empty.html'
 NAVER_LOCAL_URI=LOCAL_BASE_URL+'html/pages/naver-empty.html'
@@ -509,9 +504,6 @@ class NaverLoginView(APIView):
                 {"error": "Code is required"}, status=status.HTTP_400_BAD_REQUEST
             )
 
-        
-        # token_res = requests.post(f"https://nid.naver.com/oauth2.0/token?grant_type=authorization_code&client_id={NAVER_REST_API_KEY}&client_secret={NAVER_SECRET_KEY}&code={code}&state={state}")
-        # token_res = requests.get(f"https://nid.naver.com/oauth2.0/token?grant_type=authorization_code&client_id={NAVER_REST_API_KEY}&client_secret={NAVER_SECRET_KEY}&code={code}&state={state}")
         token_res = requests.post(
             "https://nid.naver.com/oauth2.0/token",
             data={

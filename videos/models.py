@@ -12,4 +12,4 @@ class Video(models.Model):
     bodypart = models.ForeignKey(BodyPart,on_delete=models.SET_NULL,related_name="video",null=True)
 
 class Chatbot(models.Model):
-    value=models.CharField(null=True)
+    value=models.CharField(max_length=300,null=True)
