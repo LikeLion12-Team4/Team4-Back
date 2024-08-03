@@ -13,8 +13,8 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 from pathlib import Path
 import os
 
-HOST_NAME = 'http://127.0.0.1:8000/' # localhost
-#HOST_NAME = 'http://3.37.90.114:8000/' # server host
+#HOST_NAME = 'http://127.0.0.1:8000/' # localhost
+HOST_NAME = 'http://3.37.90.114:8000/' # server host
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -143,7 +143,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
-    
+
 ]
 
 CORS_ALLOW_METHODS = [  # 허용할 옵션
@@ -206,15 +206,15 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-# from config import local_settings
-# DATABASES = local_settings.DATABASES
+from config import local_settings
+DATABASES = local_settings.DATABASES
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -267,10 +267,10 @@ EMAIL_HOST_PASSWORD = get_secret("EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 # Celery Broker redis로 설정
-CELERY_BROKER_URL = 'redis://127.0.0.1:6379'
-CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379'
-#CELERY_BROKER_URL = 'redis://3.37.90.114:6379'
-#CELERY_RESULT_BACKEND = 'redis://3.37.90.114:6379'
+#CELERY_BROKER_URL = 'redis://127.0.0.1:6379'
+#CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379'
+CELERY_BROKER_URL = 'redis://3.37.90.114:6379'
+CELERY_RESULT_BACKEND = 'redis://3.37.90.114:6379'
 
 # Celery 스케줄러 설정
 CELERY_BEAT_SCHEDULE = {
