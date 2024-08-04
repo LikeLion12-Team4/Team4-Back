@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated,AllowAny,IsAdminUser
 from forums.models import Forum,Post,PostLike,Comment
 from forums.serializers import ForumSerializer,PostSerializer,PostLikeSerializer,CommentSerializer
 from rest_framework.generics import CreateAPIView,DestroyAPIView,RetrieveAPIView,UpdateAPIView
-
+from rest_framework.pagination import PageNumberPagination
 # ==========================================================================================
 #                                       Forum View
 # ==========================================================================================
@@ -25,13 +25,15 @@ class ForumViewSet(viewsets.ModelViewSet):
 # ==========================================================================================
 #                                       Post View
 # ==========================================================================================
-
+class PostPagination(PageNumberPagination):
+    page_size = 16
 class PostCreateRetrieveView(CreateAPIView,RetrieveAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
     lookup_field = 'id'
     lookup_url_kwarg = 'forum_id' 
     permission_classes = [IsAuthenticated]
+    pagination_class = PostPagination
 
     def create(self, request, *args, **kwargs):
         try:
@@ -53,6 +55,7 @@ class PostCreateRetrieveView(CreateAPIView,RetrieveAPIView):
             return Response({"error":"게시판이 존재하지 않습니다 !"},status=status.HTTP_404_NOT_FOUND)
         serializer = PostSerializer(post,many=True)
         return Response(serializer.data,status=status.HTTP_200_OK)
+    
 
 class PostUpdateDestroyAPIView(UpdateAPIView,DestroyAPIView):
     queryset = Post.objects.all()
