@@ -26,7 +26,7 @@ class ForumViewSet(viewsets.ModelViewSet):
 #                                       Post View
 # ==========================================================================================
 class PostPagination(PageNumberPagination):
-    page_size = 16
+    page_size = 3
 class PostCreateRetrieveView(CreateAPIView,RetrieveAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
