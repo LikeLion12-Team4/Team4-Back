@@ -172,9 +172,9 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",
     "http://127.0.0.1:8000",
     "http://3.37.90.114:8000",
-    "http://likelion-team1.s3-website.ap-northeast-2.amazonaws.com",
-    "http://ec2-43-203-223-65.ap-northeast-2.compute.amazonaws.com",
-    "http://stand-up.store"
+    "https://likelion-team1.s3-website.ap-northeast-2.amazonaws.com",
+    "https://ec2-43-203-223-65.ap-northeast-2.compute.amazonaws.com",
+    "https://stand-up.store"
 ]
 
 LOGIN_REDIRECT_URL = '/'
