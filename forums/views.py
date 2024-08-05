@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated,AllowAny,IsAdminUser
 from forums.models import Forum,Post,PostLike,Comment
 from forums.serializers import ForumSerializer,PostSerializer,PostLikeSerializer,CommentSerializer
 from rest_framework.generics import CreateAPIView,DestroyAPIView,RetrieveAPIView,UpdateAPIView
-from rest_framework.pagination import PageNumberPagination
+from forums.paginations import PostPagination
 # ==========================================================================================
 #                                       Forum View
 # ==========================================================================================
@@ -25,18 +25,15 @@ class ForumViewSet(viewsets.ModelViewSet):
 # ==========================================================================================
 #                                       Post View
 # ==========================================================================================
-class PostPagination(PageNumberPagination):
-    page_size = 3
-    page_size_query_param='page_size'
-    max_page_size=16
 
 class PostCreateRetrieveView(CreateAPIView,RetrieveAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
+    pagination_class=PostPagination
     lookup_field = 'id'
     lookup_url_kwarg = 'forum_id' 
     permission_classes = [IsAuthenticated]
-    pagination_class = PostPagination
+    
 
     def create(self, request, *args, **kwargs):
         try:
