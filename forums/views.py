@@ -4,8 +4,10 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated,AllowAny,IsAdminUser
 from forums.models import Forum,Post,PostLike,Comment
 from forums.serializers import ForumSerializer,PostSerializer,PostLikeSerializer,CommentSerializer
-from rest_framework.generics import CreateAPIView,DestroyAPIView,RetrieveAPIView,UpdateAPIView
+from rest_framework.generics import CreateAPIView,DestroyAPIView,RetrieveAPIView,UpdateAPIView,ListAPIView
 from forums.paginations import PostPagination
+from rest_framework.decorators import api_view,permission_classes
+
 # ==========================================================================================
 #                                       Forum View
 # ==========================================================================================
@@ -84,11 +86,35 @@ class PostUpdateDestroyAPIView(UpdateAPIView,DestroyAPIView):
             return Response({"error":"비밀번호가 틀립니다!"},status=status.HTTP_401_UNAUTHORIZED)
         return super().destroy(request, *args, **kwargs)
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_post(request,post_id):
+    try:
+        post = Post.objects.get(id=post_id)
+    except Post.DoesNotExist:
+        return Response({"error":"존재하지 않는 게시글입니다!"},status=status.HTTP_404_NOT_FOUND)
+    
+    serializer = PostSerializer(post)
+    return Response(serializer.data,status=status.HTTP_200_OK)
+
+
 # ==========================================================================================
 #                                       PostLike View
 # ==========================================================================================
 # 좋아요 생성, 삭제
-class PostLikeCreateView(CreateAPIView):
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_like_post(request):
+    try:
+        postlike = PostLike.objects.filter(user=request.user)
+    except PostLike.DoesNotExist:
+        return Response({"error":"좋아요 누른 동영상이 없습니다."},status=status.HTTP_404_NOT_FOUND)
+    
+    postlikeserializer = PostLikeSerializer(postlike,many=True)
+    return Response(postlikeserializer.data,status=status.HTTP_200_OK)
+
+class PostLikeCreateView(CreateAPIView,ListAPIView):
     queryset = PostLike.objects.all()
     serializer_class = PostLikeSerializer
     lookup_field = 'id'
@@ -108,6 +134,11 @@ class PostLikeCreateView(CreateAPIView):
         postlike.save()
         serializer = self.get_serializer(postlike)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+    def list(self, request, *args, **kwargs):
+        postlike = PostLike.objects.filter(user=request.user)
+        postlikeserializer = self.get_serializer(postlike,many=True)
+        return Response(postlikeserializer.data,status=status.HTTP_200_OK)
     
 class PostLikeDeleteView(DestroyAPIView):
     queryset = PostLike.objects.all()
