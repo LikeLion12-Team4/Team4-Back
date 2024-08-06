@@ -474,7 +474,10 @@ def kakao_jwt_view(request):
             "fullname": f"{fullname}",
         },
     )
-
+    # Option
+    Option.objects.create(owner = user)
+    # PoseData
+    PoseData.objects.create(owner=user)
     # 사용자에 대한 토큰 생성
     refresh = RefreshToken.for_user(user)
     data = {
@@ -554,7 +557,10 @@ def naver_jwt_view(request):
             "fullname": f"{fullname}",
         },
     )
-
+    # Option
+    Option.objects.create(owner = user)
+    # PoseData
+    PoseData.objects.create(owner=user)
     # 사용자에 대한 토큰 생성
     refresh = RefreshToken.for_user(user)
     data = {
@@ -567,7 +573,7 @@ def naver_jwt_view(request):
             "is_created": created,
         },
     }
-
+    
     return Response(data, status=status.HTTP_200_OK)
 # ==========================================================================================
 #                                         AI자세코치 
