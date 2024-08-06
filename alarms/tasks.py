@@ -60,3 +60,4 @@ def send_push_alarm(option):
     # 푸시 알림 메시지 전송
     response = messaging.send(message)
     print('Successfully sent message:', response)
+    print('User:',option.owner)
