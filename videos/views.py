@@ -20,10 +20,8 @@ class VideoViewSet(viewsets.ModelViewSet): # url만 입력하면 영상 길이, 
     permission_classes = [IsAdminUser]
 
     def get_permissions(self):
-        if self.action == "list":
+        if self.action == "list" or self.action=="retrieve":
             return [AllowAny()]
-        elif self.action =="retrieve":
-            return [IsAuthenticated()]
         return super().get_permissions()
     
     def extract_thumbnail_link(self,youtubelink): # 썸네일 추출 
