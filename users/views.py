@@ -474,13 +474,14 @@ def kakao_jwt_view(request):
             "fullname": f"{fullname}",
         },
     )
-    # user.save()
-    # Option
-    Option.objects.create(owner = user)
-    # PoseData
-    PoseData.objects.create(owner=user)
+    if created:
+        # Option
+        Option.objects.create(owner = user)
+        # PoseData
+        PoseData.objects.create(owner=user)
+        # user.save()
     
-    serializer = UserSerializer(user)
+    # serializer = UserSerializer(user)
 
     # 사용자에 대한 토큰 생성
     refresh = RefreshToken.for_user(user)
@@ -488,7 +489,9 @@ def kakao_jwt_view(request):
         "access_token": str(refresh.access_token),
         "refresh_token": str(refresh),
         "user_info": {
-            "user":serializer.data,
+            "username": user.username,
+            "email": user.email,
+            "fullname": user.fullname,
             "is_created": created,
         },
     }
