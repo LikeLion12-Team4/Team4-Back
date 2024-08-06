@@ -52,8 +52,8 @@ def send_push_alarm(option):
             "thumbnail": chosen_video.thumbnail,
             "url": chosen_video.youtubelink,
             "content_title": chosen_content.content,
-            "content_image": chosen_content.image.url,
-            "badge": 'media/pushes/304.png'
+            "content_image": "http://stand-up-back.store"+ chosen_content.image.url,
+            "badge": "http://stand-up-back.store/media/pushes/304.png"
         },
         token=fcm_token
     )
