@@ -474,7 +474,7 @@ def kakao_jwt_view(request):
             "fullname": f"{fullname}",
         },
     )
-    user.save()
+    # user.save()
     # Option
     Option.objects.create(owner = user)
     # PoseData
