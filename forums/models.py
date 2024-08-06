@@ -7,8 +7,8 @@ class Forum(models.Model):
 
 # 게시글
 class Post(models.Model): 
-    title = models.CharField(max_length=50,null=False)
-    content = models.CharField(max_length=100,null=False) 
+    title = models.CharField(max_length=300,null=False)
+    content = models.CharField(max_length=10000,null=False) 
     num = models.CharField(max_length=4,null=True)
     created_at = models.DateTimeField(auto_now_add=True,null=True)
     updated_at = models.DateTimeField(auto_now=True,null=True)
