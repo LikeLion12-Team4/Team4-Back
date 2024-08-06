@@ -278,7 +278,7 @@ CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379'
 CELERY_BEAT_SCHEDULE = {
     'check-and-send-alarms-every-minute': {
         'task': 'alarms.tasks.check_and_send_push_alarms',
-        'schedule': 60.0,  # 1분마다 실행
+        'schedule': 300.0,  # 5분마다 실행
     },
 }
 
